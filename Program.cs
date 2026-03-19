@@ -24,5 +24,4 @@ Jobs.AddInstantJob(() =>
     return Task.CompletedTask;
 });
 
-
 await Task.Delay(TimeSpan.FromSeconds(10));
