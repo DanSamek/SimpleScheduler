@@ -13,15 +13,15 @@ public static class Jobs
     public static void AddInstantJob(Func<Task> job, TimeSpan? delay = null)
     {
         ArgumentNullException.ThrowIfNull(Storage, "Storage is null");
-        Storage.AddJob(new Job(job, Delay: delay));
+        Storage.AddJob(new Job(job, delay));
     }
 
     /// <summary>
     /// Executes a job repeatedly.
     /// </summary>
-    public static void AddRecurringJob(Func<Task> job, TimeSpan interval, TimeSpan? delay = null)
+    public static void AddRecurringJob(Func<Task> job, TimeSpan recurrence, TimeSpan? delay = null)
     {
         ArgumentNullException.ThrowIfNull(Storage, "Storage is null");
-        Storage.AddJob(new Job(job, interval, delay));
+        Storage.AddJob(new Job(job, delay, recurrence));
     }
 }

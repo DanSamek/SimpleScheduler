@@ -20,8 +20,22 @@ await Task.Delay(TimeSpan.FromSeconds(5));
 
 Jobs.AddInstantJob(() =>
 {
-    Console.WriteLine("Some job");
+    Console.WriteLine("Some instant job");
     return Task.CompletedTask;
 });
 
-await Task.Delay(TimeSpan.FromSeconds(10));
+Jobs.AddInstantJob(() =>
+{
+    Console.WriteLine("Some instant job 2");
+    return Task.CompletedTask;
+}, TimeSpan.FromSeconds(10));
+
+
+Jobs.AddRecurringJob(() =>
+{
+    Console.WriteLine("Some recurring job");
+    return Task.CompletedTask;
+}, TimeSpan.FromSeconds(10));
+
+
+await Task.Delay(TimeSpan.FromSeconds(200));
