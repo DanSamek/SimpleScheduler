@@ -8,14 +8,14 @@ public class Job
     /// <summary>
     /// .Ctor
     /// </summary>
-    public Job(Func<Task> job, TimeSpan? delay = null, TimeSpan? recurrence = null)
+    public Job(string jobKey, TimeSpan? delay = null, TimeSpan? recurrence = null)
     {
-        Value = job;
+        JobKey = jobKey;
         _executionTime = DateTime.UtcNow.Add(delay ?? TimeSpan.Zero);
         _recurrence = recurrence;
     }
     
-    public Func<Task> Value { get; }
+    public String JobKey { get; }
 
     public bool IsRecurrent => _recurrence.HasValue;
     public bool CanBeExecuted => _executionTime <=  DateTime.UtcNow;

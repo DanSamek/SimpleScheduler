@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace SimpleScheduler;
 
 /// <summary>
@@ -5,15 +7,29 @@ namespace SimpleScheduler;
 /// </summary>
 public static class Jobs
 {
-    public static IStorage? Storage;
+    private static IStorage? _storage;
+    private static IJobMapper? _jobMapper;
+
+    /// <summary>
+    /// Sets a storage to use for jobs.
+    /// </summary>
+    public static void SetStorage(IStorage storage) => _storage = storage;
+    
+    /// <summary>
+    /// Sets a job mapper to use.
+    /// </summary>
+    public static void SetJobMapper(IJobMapper mapper) => _jobMapper = mapper;
 
     /// <summary>
     /// Executes a job once.
     /// </summary>
     public static void AddInstantJob(Func<Task> job, TimeSpan? delay = null)
     {
-        ArgumentNullException.ThrowIfNull(Storage, "Storage is null");
-        Storage.AddJob(new Job(job, delay));
+        ArgumentNullException.ThrowIfNull(_storage, "Storage is null");
+        ArgumentNullException.ThrowIfNull(_jobMapper, "JobMapper is null");
+        var jobKey = job.Key();
+        _jobMapper.AddJob(job, jobKey);
+        _storage.AddJob(new Job(jobKey, delay));
     }
 
     /// <summary>
@@ -21,7 +37,19 @@ public static class Jobs
     /// </summary>
     public static void AddRecurringJob(Func<Task> job, TimeSpan recurrence, TimeSpan? delay = null)
     {
-        ArgumentNullException.ThrowIfNull(Storage, "Storage is null");
-        Storage.AddJob(new Job(job, delay, recurrence));
+        ArgumentNullException.ThrowIfNull(_storage, "Storage is null");
+        ArgumentNullException.ThrowIfNull(_jobMapper, "JobMapper is null");
+        var jobKey = job.Key();
+        _jobMapper.AddJob(job, jobKey);
+        _storage.AddJob(new Job(jobKey, delay, recurrence));
+    }
+}
+
+public static class JobsExtensions
+{
+    public static string Key(this Func<Task> job)
+    {
+        var key = $"{job.Target?.GetType().FullName} {job.Method.Name}";
+        return key;
     }
 }

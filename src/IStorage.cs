@@ -11,7 +11,7 @@ public interface IStorage
     void AddJob(Job job);
     
     /// <summary>
-    /// Returns jobs to be processed by the thread pool.
+    /// Returns jobs keys to be processed by the thread pool.
     /// </summary>
-    public List<Func<Task>> JobsToRun();
+    public List<string> JobsKeysToRun();
 }

@@ -11,7 +11,7 @@ public class InMemoryStorage : IStorage
     }
     
     /// <inheritdoc /> 
-    public List<Func<Task>> JobsToRun()
+    public List<string> JobsKeysToRun()
     {
         var instantJobs = _jobs
             .Where(j => j is { CanBeExecuted: true, IsRecurrent: false })
@@ -31,9 +31,9 @@ public class InMemoryStorage : IStorage
             _jobs.Remove(instantJob);
         }
         
-        var jobsToRun = new List<Func<Task>>();
-        jobsToRun.AddRange(recurrentJobs.Select(j => j.Value));
-        jobsToRun.AddRange(instantJobs.Select(j => j.Value));
+        var jobsToRun = new List<string>();
+        jobsToRun.AddRange(recurrentJobs.Select(j => j.JobKey));
+        jobsToRun.AddRange(instantJobs.Select(j => j.JobKey));
         return jobsToRun;
     }
 }

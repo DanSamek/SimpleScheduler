@@ -7,10 +7,12 @@ var configuration = new SchedulerConfiguration
 };
 
 var storage = new InMemoryStorage();
-Jobs.Storage = storage;
+var mapper = new JobMapper();
+Jobs.SetStorage(storage);
+Jobs.SetJobMapper(mapper);
 
 var threadPool = new ThreadPool(configuration.NumberOfThreads);
-var scheduler = new Schleduler(threadPool, storage);
+var scheduler = new Schleduler(threadPool, storage, mapper);
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 threadPool.Run();
@@ -37,5 +39,25 @@ Jobs.AddRecurringJob(() =>
     return Task.CompletedTask;
 }, TimeSpan.FromSeconds(10));
 
+var test = new Test();
+test.Setup();
 
 await Task.Delay(TimeSpan.FromSeconds(200));
+
+class Test
+{
+    private int x = 0;
+    private void Run()
+    {
+        Console.WriteLine($"number: {x++}");
+    }
+
+    public void Setup()
+    {
+        Jobs.AddRecurringJob(() =>
+        {
+            Run();
+            return Task.CompletedTask;
+        }, TimeSpan.FromSeconds(10));
+    }
+}

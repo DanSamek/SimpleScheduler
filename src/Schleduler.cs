@@ -4,16 +4,18 @@ public class Schleduler
 {
     private readonly ThreadPool _threadPool;
     private readonly IStorage _storage;
+    private readonly IJobMapper _jobMapper;
     
     private readonly PeriodicTimer _timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
 
     /// <summary>
     /// .Ctor
     /// </summary>
-    public Schleduler(ThreadPool threadPool, IStorage storage)
+    public Schleduler(ThreadPool threadPool, IStorage storage, IJobMapper jobMapper)
     {
         _threadPool = threadPool;
         _storage = storage;
+        _jobMapper = jobMapper;
     }
 
     /// <summary>
@@ -30,7 +32,9 @@ public class Schleduler
     {
         while (true)
         {
-            var jobs = _storage.JobsToRun();
+            var jobsKeys = _storage.JobsKeysToRun();
+            var jobs = _jobMapper.MapJobKeys(jobsKeys);
+            
             foreach (var job in jobs) _threadPool.EnqueueJob(job);
             
             Console.WriteLine("Waiting for jobs");
