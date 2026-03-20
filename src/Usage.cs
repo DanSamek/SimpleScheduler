@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using SimpleScheduler.Hub;
 using SimpleScheduler.Mapper;
 using SimpleScheduler.Storage;
 
@@ -13,8 +15,10 @@ public static class Usage
     {
         var options = new SchedulerOptions();
         optionsAction.Invoke(options);
-        
+
+        services.AddSignalR();
         services.AddDbContext<SimpleSchedulerContext>(dbOptions => dbOptions.UseInMemoryDatabase("SimpleScheduler"));
+        services.AddSingleton<SchedulerHubNotifier>();
         services.AddSingleton<IStorage, EfStorage>();
         services.AddSingleton<ThreadPool.ThreadPool>(_ => new ThreadPool.ThreadPool(options.NumberOfThreads));
         services.AddSingleton<IJobMapper, JobMapper>(_ => new JobMapper());
@@ -34,6 +38,11 @@ public static class Usage
     /// </summary>
     public static void UseSimpleScheduler(this IApplicationBuilder app)
     {
+        if (app is IEndpointRouteBuilder erp)
+        {
+            erp.MapHub<SchedulerHub>("/simple-scheduler");
+        }
+        
         var services = app.ApplicationServices;
         var threadPool = services.GetService<ThreadPool.ThreadPool>()!;
         var scheduler = services.GetService<Scheduler>()!;

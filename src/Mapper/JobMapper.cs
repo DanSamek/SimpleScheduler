@@ -1,3 +1,5 @@
+using SimpleScheduler.Entities;
+
 namespace SimpleScheduler.Mapper;
 
 public class JobMapper : IJobMapper
@@ -11,13 +13,13 @@ public class JobMapper : IJobMapper
     }
 
     /// <inheritdoc />
-    public IEnumerable<Func<Task>> MapJobKeys(IEnumerable<string> jobsKeys)
+    public IEnumerable<Func<Task>> GetTaskForJobs(IEnumerable<Job> jobs)
     {
-        foreach (var jobKey in jobsKeys)
+        foreach (var job in jobs)
         {
-            if (_map.TryGetValue(jobKey, out var job))
+            if (_map.TryGetValue(job.Key, out var fnc))
             {
-                yield return job;
+                yield return fnc;
             }
         }
     }

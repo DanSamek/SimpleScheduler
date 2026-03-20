@@ -1,18 +1,20 @@
-using Microsoft.EntityFrameworkCore;
 using SimpleScheduler.Entities;
+using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Storage;
 
 public class EfStorage : IStorage
 {
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly SchedulerHubNotifier _hubNotifier; 
     
     /// <summary>
     /// .Ctor
     /// </summary>
-    public EfStorage(IServiceScopeFactory scopeFactory)
+    public EfStorage(IServiceScopeFactory scopeFactory, SchedulerHubNotifier hubNotifier)
     {
         _scopeFactory = scopeFactory;
+        _hubNotifier = hubNotifier;
     }
     
     /// <inheritdoc /> 
@@ -29,7 +31,7 @@ public class EfStorage : IStorage
     }
 
     /// <inheritdoc />
-    public IReadOnlyList<string> JobsKeysToRun()
+    public IReadOnlyList<Job> JobsToRun()
     {
         using var scope = _scopeFactory.CreateScope();
         using var context = scope.GetSchedulerContext();
@@ -37,7 +39,6 @@ public class EfStorage : IStorage
         var now = DateTime.UtcNow;
         var keys = context.Jobs
             .Where(j => j.ExecutionTime <= now && j.State == JobState.Inactive)
-            .Select(j => j.Key)
             .ToArray();
         
         return keys;
@@ -55,20 +56,15 @@ public class EfStorage : IStorage
         job.State = newState;
         context.Update(job);
         await context.SaveChangesAsync();
-
-        /*
-        NOT IN-MEMORY db solution
-        await context.Jobs
-            .Where(j => j.Key == jobKey)
-            .ExecuteUpdateAsync(spc => spc.SetProperty(j => j.State, newState));
-            */
+        
+        await _hubNotifier.NotifyClients(job);
     }
 
     /// <inheritdoc />
-    public void SetEndedState(string jobKey)
+    public async Task SetEndedState(string jobKey)
     {
         using var scope = _scopeFactory.CreateScope();
-        using var context = scope.GetSchedulerContext();
+        await using var context = scope.GetSchedulerContext();
         
         var job = context.Jobs
             .FirstOrDefault(j => j.Key == jobKey);
@@ -78,8 +74,11 @@ public class EfStorage : IStorage
         job.MoveExecutionTime();
         var state = job.IsRecurrent() ? JobState.Inactive : JobState.Ended;
         job.State = state;
+        
         context.Jobs.Update(job);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
+        
+        await _hubNotifier.NotifyClients(job);
     }
 }
 

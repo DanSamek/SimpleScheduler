@@ -23,7 +23,7 @@ internal class Worker
             if (!_jobQueue.TryDequeue(out var data)) continue;
             await data.Scheduler.OnRunning(data.Key);
             await data.Job();
-            data.Scheduler.OnEnded(data.Key);
+            await data.Scheduler.OnEnded(data.Key);
         }
     }
     

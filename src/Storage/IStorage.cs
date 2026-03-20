@@ -15,7 +15,7 @@ public interface IStorage
     /// <summary>
     /// Returns jobs keys to be processed by the thread pool.
     /// </summary>
-    public IReadOnlyList<string> JobsKeysToRun();
+    public IReadOnlyList<Job> JobsToRun();
     
     /// <summary>
     /// Updates state of the job under certain key.
@@ -27,5 +27,5 @@ public interface IStorage
     /// if its not recurrent -> Ended
     /// if its -> Inactive
     /// </summary>
-    void SetEndedState(string jobKey);
+    public Task SetEndedState(string jobKey);
 }

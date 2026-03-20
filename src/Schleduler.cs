@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.SignalR;
 using SimpleScheduler.Entities;
+using SimpleScheduler.Hub;
 using SimpleScheduler.Mapper;
 using SimpleScheduler.Storage;
 using SimpleScheduler.ThreadPool;
@@ -39,17 +41,17 @@ public class Scheduler
         {
             while (true)
             {
-                var jobsKeys = _storage.JobsKeysToRun();
-                foreach (var jobKey in jobsKeys)
+                var jobs = _storage.JobsToRun();
+                var tasks = _jobMapper.GetTaskForJobs(jobs);
+                
+                var i = 0;
+                foreach (var task in tasks)
                 {
-                    await _storage.UpdateJobState(jobKey, JobState.Queued);
-                }
-            
-                var jobs = _jobMapper.MapJobKeys(jobsKeys);
-                foreach (var job in jobs)
-                {
-                    var data = new WorkerData(job, job.Key(), this);
+                    var job = jobs[i];
+                    await _storage.UpdateJobState(job.Key, JobState.Queued);
+                    var data = new WorkerData(task, job.Key, this);
                     _threadPool.EnqueueJob(data);
+                    i++;
                 }
                 
                 await _timer.WaitForNextTickAsync();
@@ -67,8 +69,8 @@ public class Scheduler
         await _storage.UpdateJobState(jobKey, JobState.Running);
     }
     
-    internal void OnEnded(string jobKey)
+    internal async Task OnEnded(string jobKey)
     {
-        _storage.SetEndedState(jobKey);
+        await _storage.SetEndedState(jobKey);
     }
 }

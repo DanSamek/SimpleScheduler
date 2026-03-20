@@ -1,3 +1,5 @@
+using SimpleScheduler.Entities;
+
 namespace SimpleScheduler.Mapper;
 
 /// <summary>
@@ -14,5 +16,5 @@ public interface IJobMapper
     /// <summary>
     /// Returns mapped jobs to the specified keys.  
     /// </summary>
-    IEnumerable<Func<Task>> MapJobKeys(IEnumerable<string> jobsKeys);
+    IEnumerable<Func<Task>> GetTaskForJobs(IEnumerable<Job> jobs);
 }
