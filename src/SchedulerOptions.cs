@@ -3,7 +3,7 @@ namespace SimpleScheduler;
 /// <summary>
 /// Configuration for the scheduler.
 /// </summary>
-public record SchedulerConfiguration
+public record SchedulerOptions
 {
     /// <summary>
     /// Number of threads that can be used for the thread pool.

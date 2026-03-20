@@ -1,4 +1,4 @@
-namespace SimpleScheduler;
+namespace SimpleScheduler.Mapper;
 
 /// <summary>
 /// Interface for the job mapper.
@@ -14,5 +14,5 @@ public interface IJobMapper
     /// <summary>
     /// Returns mapped jobs to the specified keys.  
     /// </summary>
-    IEnumerable<Func<Task>> MapJobKeys(List<string> jobsKeys);
+    IEnumerable<Func<Task>> MapJobKeys(IEnumerable<string> jobsKeys);
 }

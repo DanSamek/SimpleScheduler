@@ -1,16 +1,17 @@
-namespace SimpleScheduler;
+namespace SimpleScheduler.Mapper;
 
 public class JobMapper : IJobMapper
 {
     private readonly Dictionary<string, Func<Task>> _map = new();
     
+    /// <inheritdoc />
     public void AddJob(Func<Task> job, string key)
     {
-        Console.WriteLine($"Adding job: {key}");
         _map.Add(key, job);
     }
 
-    public IEnumerable<Func<Task>> MapJobKeys(List<string> jobsKeys)
+    /// <inheritdoc />
+    public IEnumerable<Func<Task>> MapJobKeys(IEnumerable<string> jobsKeys)
     {
         foreach (var jobKey in jobsKeys)
         {

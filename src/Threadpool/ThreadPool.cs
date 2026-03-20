@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 
-namespace SimpleScheduler;
+namespace SimpleScheduler.ThreadPool;
 
 /// <summary>
 /// Thread pool for executing tasks. 
@@ -8,13 +8,13 @@ namespace SimpleScheduler;
 public class ThreadPool
 {
     private readonly Worker[] _workers;
-    private readonly ConcurrentQueue<Func<Task>>[] _jobQueues;
+    private readonly ConcurrentQueue<WorkerData>[] _jobQueues;
     
     public ThreadPool(int numberOfWorkers)
     {
-        _jobQueues = new ConcurrentQueue<Func<Task>>[numberOfWorkers];
+        _jobQueues = new ConcurrentQueue<WorkerData>[numberOfWorkers];
         
-        for (var i = 0; i < _jobQueues.Length; i++) _jobQueues[i] = new ConcurrentQueue<Func<Task>>();
+        for (var i = 0; i < _jobQueues.Length; i++) _jobQueues[i] = new ConcurrentQueue<WorkerData>();
         
         _workers = new  Worker[numberOfWorkers];
         for (var i = 0; i < numberOfWorkers; i++) _workers[i] = new Worker(_jobQueues[i], i);
@@ -36,9 +36,9 @@ public class ThreadPool
     /// <summary>
     /// Enqueues a job to run on the thread pool worker.
     /// </summary>
-    internal void EnqueueJob(Func<Task> job)
+    internal void EnqueueJob(WorkerData data)
     {
         var minWorkQueue = _jobQueues.MinBy(x => x.Count);
-        minWorkQueue!.Enqueue(job);
+        minWorkQueue!.Enqueue(data);
     }
 }

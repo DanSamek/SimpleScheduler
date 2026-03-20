@@ -1,8 +1,13 @@
+using SimpleScheduler.Entities;
+using SimpleScheduler.Mapper;
+using SimpleScheduler.Storage;
+using SimpleScheduler.ThreadPool;
+
 namespace SimpleScheduler;
 
-public class Schleduler
+public class Scheduler
 {
-    private readonly ThreadPool _threadPool;
+    private readonly ThreadPool.ThreadPool _threadPool;
     private readonly IStorage _storage;
     private readonly IJobMapper _jobMapper;
     
@@ -11,7 +16,7 @@ public class Schleduler
     /// <summary>
     /// .Ctor
     /// </summary>
-    public Schleduler(ThreadPool threadPool, IStorage storage, IJobMapper jobMapper)
+    public Scheduler(ThreadPool.ThreadPool threadPool, IStorage storage, IJobMapper jobMapper)
     {
         _threadPool = threadPool;
         _storage = storage;
@@ -30,15 +35,40 @@ public class Schleduler
 
     private async Task Loop()
     {
-        while (true)
+        try
         {
-            var jobsKeys = _storage.JobsKeysToRun();
-            var jobs = _jobMapper.MapJobKeys(jobsKeys);
+            while (true)
+            {
+                var jobsKeys = _storage.JobsKeysToRun();
+                foreach (var jobKey in jobsKeys)
+                {
+                    await _storage.UpdateJobState(jobKey, JobState.Queued);
+                }
             
-            foreach (var job in jobs) _threadPool.EnqueueJob(job);
-            
-            Console.WriteLine("Waiting for jobs");
-            await _timer.WaitForNextTickAsync();
+                var jobs = _jobMapper.MapJobKeys(jobsKeys);
+                foreach (var job in jobs)
+                {
+                    var data = new WorkerData(job, job.Key(), this);
+                    _threadPool.EnqueueJob(data);
+                }
+                
+                await _timer.WaitForNextTickAsync();
+            }
         }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    internal async Task OnRunning(string jobKey)
+    {
+        await _storage.UpdateJobState(jobKey, JobState.Running);
+    }
+    
+    internal void OnEnded(string jobKey)
+    {
+        _storage.SetEndedState(jobKey);
     }
 }
