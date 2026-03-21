@@ -1,8 +1,6 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace SimpleScheduler.Entities;
 
-public class Job
+public class Job : DoId
 {
     /// <summary>
     /// Ctor
@@ -20,17 +18,6 @@ public class Job
     }
     
     /// <summary>
-    /// Id of the job.
-    /// </summary>
-    [Key]
-    public int Id { get; set; }
-
-    /// <summary>
-    /// State of the job.
-    /// </summary>
-    public JobState State { get; set; } = JobState.Inactive;
-    
-    /// <summary>
     /// Key of the job.
     /// </summary>
     public string Key { get; set; }
@@ -46,10 +33,10 @@ public class Job
     public DateTime ExecutionTime { get; set; }
 
     /// <summary>
-    /// Error message if job is failed.
+    /// All executions of the job.
     /// </summary>
-    public string? Error { get; set; }
-
+    public List<Execution> Executions { get; set; } = [];
+    
     /// <summary>
     /// Moves execution time for the recurrent job.
     /// </summary>

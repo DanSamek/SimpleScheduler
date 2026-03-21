@@ -34,7 +34,7 @@ public class EfStorage<TDbContext> : IStorage
     }
 
     /// <inheritdoc />
-    public IReadOnlyList<Job> JobsToRun()
+    public IReadOnlyList<Execution> JobsToRun()
     {
         using var scope = _scopeFactory.CreateScope();
         using var context = scope.GetSchedulerContext<TDbContext>();
@@ -42,74 +42,70 @@ public class EfStorage<TDbContext> : IStorage
         
         var now = DateTime.UtcNow;
         var jobsToRun = jobs
-            .AsNoTracking()
-            .Where(j => j.ExecutionTime <= now && j.State == JobState.Inactive)
+            .Where(j => j.ExecutionTime <= now && (j.Recurrence != null || j.Executions.Count == 0))
             .ToArray();
         
-        return jobsToRun;
+        foreach (var job in jobsToRun)
+        {
+            job.MoveExecutionTime();
+        }
+        
+        var result = jobsToRun
+            .Select(job => new Execution { Job = job })
+            .ToList();
+
+        context.Set<Execution>().AddRange(result);
+        context.SaveChanges();
+        return result;
     }
 
-    /// <inheritdoc />
-    public async Task UpdateJobState(string jobKey, JobState newState)
+    public async Task UpdateExecutionState(int executionId, ExecutionState newState)
     {
         using var scope = _scopeFactory.CreateScope();
         await using var context = scope.GetSchedulerContext<TDbContext>();
-        var jobs = context.Set<Job>();
+        var executions = context.Set<Execution>();
 
-        var job = jobs.FirstOrDefault(j => j.Key == jobKey);
-        if (job is null) return;
+        var execution = executions
+            .Include(e => e.Job)
+            .FirstOrDefault(e => e.Id == executionId);
+        
+        if (execution is null) return;
 
-        job.State = newState;
-        context.Update(job);
+        execution.State = newState;
+        context.Update(execution);
         await context.SaveChangesAsync();
         
-        await _hubNotifier.NotifyClients(job);
+        await _hubNotifier.NotifyClients(execution);
     }
 
-    public async Task SetFailedState(string jobKey, string errorMessage)
-    {
+    public async Task SetExecutionFailedState(int executionId, string errorMessage)
+    { 
         using var scope = _scopeFactory.CreateScope();
         await using var context = scope.GetSchedulerContext<TDbContext>();
-        var jobs = context.Set<Job>();
+        var executions = context.Set<Execution>();
 
-        var job = jobs.FirstOrDefault(j => j.Key == jobKey);
-        if (job is null) return;
+        var execution = executions
+            .Include(e => e.Job)
+            .FirstOrDefault(e => e.Id == executionId);
+        
+        if (execution is null) return;
 
-        job.State = JobState.Failed;
-        job.Error = errorMessage;
+        execution.State = ExecutionState.Failed;
+        execution.Error = errorMessage;
 
-        context.Update(job);
+        context.Update(execution);
         await context.SaveChangesAsync();
     }
 
-    /// <inheritdoc />
-    public async Task SetEndedState(string jobKey)
-    {
-        using var scope = _scopeFactory.CreateScope();
-        await using var context = scope.GetSchedulerContext<TDbContext>();
-        var jobs = context.Set<Job>();
-        
-        var job = jobs .FirstOrDefault(j => j.Key == jobKey);
-
-        if (job == null) return;
-        
-        job.MoveExecutionTime();
-        var state = job.IsRecurrent() ? JobState.Inactive : JobState.Ended;
-        job.State = state;
-        
-        jobs.Update(job);
-        await context.SaveChangesAsync();
-        
-        await _hubNotifier.NotifyClients(job);
-    }
-    
-    /// <inheritdoc />
-    public List<Job> AllJobs()
-    {
+    public List<Execution> AllExecutions()
+    { 
         using var scope = _scopeFactory.CreateScope();
         using var context = scope.GetSchedulerContext<TDbContext>();
-        var jobs = context.Set<Job>().ToList();
-        return jobs;
+        var executions = context.Set<Execution>()
+            .Include(e => e.Job)
+            .ToList();
+        
+        return executions;
     }
 }
 

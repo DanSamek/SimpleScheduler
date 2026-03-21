@@ -12,15 +12,10 @@ public class JobMapper : IJobMapper
         _map.Add(key, job);
     }
 
-    /// <inheritdoc />
-    public IEnumerable<Func<Task>> GetTaskForJobs(IEnumerable<Job> jobs)
+    public IEnumerable<ExecutionWithJob> GetTaskForExecutions(IEnumerable<Execution> executions)
     {
-        foreach (var job in jobs)
-        {
-            if (_map.TryGetValue(job.Key, out var fnc))
-            {
-                yield return fnc;
-            }
-        }
+        var result = executions
+            .Select(e => new ExecutionWithJob(e, _map.GetValueOrDefault(e.Job.Key)));
+        return result;
     }
 }

@@ -22,15 +22,19 @@ internal class Worker
         {
             if (!_jobQueue.TryDequeue(out var data)) continue;
             var scheduler = data.Scheduler;
+            var executionId = data.ExecutionWithJob.Execution.Id;
             try
             {
-                await scheduler.OnRunning(data.Key);
-                await data.Job();
-                await scheduler.OnEnded(data.Key);
+                await scheduler.OnRunning(executionId);
+                if (data.ExecutionWithJob.Job != null)
+                {
+                    await data.ExecutionWithJob.Job();   
+                }
+                await scheduler.OnEnded(executionId);
             }
             catch (Exception ex)
             {
-                await scheduler.OnException(data.Key, ex);
+                await scheduler.OnException(executionId, ex);
             }
         }   
     }

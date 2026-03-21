@@ -16,5 +16,5 @@ public interface IJobMapper
     /// <summary>
     /// Returns mapped jobs to the specified keys.  
     /// </summary>
-    IEnumerable<Func<Task>> GetTaskForJobs(IEnumerable<Job> jobs);
+    IEnumerable<ExecutionWithJob> GetTaskForExecutions(IEnumerable<Execution> executions);
 }

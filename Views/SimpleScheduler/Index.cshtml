@@ -18,13 +18,18 @@
 </div>
 
 <div class="jobs">
-    @foreach (var job in Model.Jobs)
+    <div style="display: none" id="job-unknown">
+        <span class="key">0</span>
+        <span class="state">0</span>
+        <span class="execution-time">0</span>
+    </div>
+    
+    @foreach (var info in Model.ExecutionInfos)
     {
-        <div id="job-@job.Id">
-            <span>@job.Key</span>
-            <span>@job.IsRecurrent()</span>
-            <span class="state">@job.State</span>
-            <span>@job.ExecutionTime.ToString(CultureInfo.InvariantCulture)</span>
+        <div id="job-@info.Id">
+            <span class="key" >@info.Key</span>
+            <span class="state">@info.State</span>
+            <span class="execution-time">@info.ExecutionTime.ToString(CultureInfo.InvariantCulture)</span>
         </div>
     }
 </div>

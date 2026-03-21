@@ -15,9 +15,8 @@ public class SchedulerHubNotifier
         _hubContext = hubContext;
     }
 
-    public async Task NotifyClients(Job job)
+    public async Task NotifyClients(Execution info)
     {
-        var dto = new JobDto(job.Id, job.Key, job.State.ToString(), job.ExecutionTime);
-        await _hubContext.Clients.All.SendAsync("JobUpdate", dto);
+        await _hubContext.Clients.All.SendAsync("ExecutionUpdate", info.AsDto());
     }
 }

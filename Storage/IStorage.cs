@@ -13,29 +13,22 @@ public interface IStorage
     void AddJob(Job job);
     
     /// <summary>
-    /// Returns jobs keys to be processed by the thread pool.
+    /// Returns jobs to be processed by the thread pool.
     /// </summary>
-    public IReadOnlyList<Job> JobsToRun();
+    public IReadOnlyList<Execution> JobsToRun();
     
     /// <summary>
-    /// Updates state of the job under certain key.
+    /// Updates state of the execution under a certain key.
     /// </summary>
-    public Task UpdateJobState(string jobKey, JobState newState);
+    public Task UpdateExecutionState(int executionId, ExecutionState newState);
     
     /// <summary>
-    /// Updates a job state to a failed. 
+    /// Updates an execution's state to a failed. 
     /// </summary>
-    public Task SetFailedState(string jobKey, string errorMessage);
-
-    /// <summary>
-    /// Sets properly state for the task:
-    /// if its not recurrent -> Ended
-    /// if its -> Inactive
-    /// </summary>
-    public Task SetEndedState(string jobKey);
+    public Task SetExecutionFailedState(int executionId, string errorMessage);
     
     /// <summary>
-    /// Returns all jobs.
+    /// Returns all executions.
     /// </summary>
-    public List<Job> AllJobs();
+    public List<Execution> AllExecutions();
 }

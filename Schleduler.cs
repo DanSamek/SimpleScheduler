@@ -39,18 +39,15 @@ public class Scheduler
         {
             try
             {
-                var jobs = _storage.JobsToRun();
-                var tasks = _jobMapper.GetTaskForJobs(jobs);
-                
-                var i = 0;
-                foreach (var task in tasks)
+                var executions = _storage.JobsToRun();
+                var executionsWithJobs = _jobMapper.GetTaskForExecutions(executions);
+
+                foreach (var execution in executionsWithJobs)
                 {
-                    var job = jobs[i];
-                    await _storage.UpdateJobState(job.Key, JobState.Queued);
-                    var data = new WorkerData(task, job.Key, this);
+                    var data = new WorkerData(execution, this);
                     _threadPool.EnqueueJob(data);
-                    i++;
                 }
+                
                 
                 await _timer.WaitForNextTickAsync();
             }
@@ -62,18 +59,18 @@ public class Scheduler
         }
     }
 
-    internal async Task OnRunning(string jobKey)
+    internal async Task OnRunning(int executionId)
     {
-        await _storage.UpdateJobState(jobKey, JobState.Running);
+        await _storage.UpdateExecutionState(executionId, ExecutionState.Running);
     }
     
-    internal async Task OnEnded(string jobKey)
+    internal async Task OnEnded(int executionId)
     {
-        await _storage.SetEndedState(jobKey);
+        await _storage.UpdateExecutionState(executionId, ExecutionState.Ended);
     }
 
-    public async Task OnException(string jobKey, Exception exception)
+    public async Task OnException(int executionId, Exception exception)
     {
-        await _storage.SetFailedState(jobKey, exception.StackTrace ?? string.Empty);
+        await _storage.SetExecutionFailedState(executionId, exception.StackTrace ?? string.Empty);
     }
 }

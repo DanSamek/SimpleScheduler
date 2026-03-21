@@ -21,6 +21,7 @@ public static class ModelBuilderExtensions
 {
     public static void AddSimpleScheduler(this ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Execution>();
         modelBuilder.Entity<Job>();
     }
 }

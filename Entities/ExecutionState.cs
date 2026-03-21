@@ -1,13 +1,12 @@
 namespace SimpleScheduler.Entities;
 
 /// <summary>
-/// State of the job.
+/// State of the execution of the job.
 /// </summary>
-public enum JobState
+public enum ExecutionState
 {
     Queued = 0,
     Running = 1,
     Ended = 2,
-    Inactive = 3,
-    Failed = 4,
+    Failed = 3,
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SimpleScheduler.Hub;
 using SimpleScheduler.Storage;
 using Index = SimpleScheduler.Views.SimpleScheduler.Index;
 
@@ -19,10 +20,10 @@ public class SimpleSchedulerController : Controller
     [HttpGet("/simple-scheduler")]
     public IActionResult Index()
     {
-        var result = _storage.AllJobs();
+        var result = _storage.AllExecutions();
         var model = new Index
         {
-            Jobs = result
+            ExecutionInfos = result.Select(e => e.AsDto()).ToList()
         };
         return View(model);
     }
