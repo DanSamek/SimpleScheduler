@@ -9,7 +9,7 @@ public class Job : DoId
     {
         Key = key;
         Recurrence = recurrence;
-        ExecutionTime = DateTime.UtcNow.Add(delay ?? TimeSpan.Zero);
+        NextExecutionTime = DateTime.UtcNow.Add(delay ?? TimeSpan.Zero);
     }
 
     public Job()
@@ -28,9 +28,10 @@ public class Job : DoId
     public TimeSpan? Recurrence { get; set; }
     
     /// <summary>
-    /// Execution time of the job.
+    /// Next execution time of the job.
+    /// TODO somehow handle UI stuff -- set NextExecutionTime time to "NEVER" value?
     /// </summary>
-    public DateTime ExecutionTime { get; set; }
+    public DateTime NextExecutionTime { get; set; }
 
     /// <summary>
     /// All executions of the job.
@@ -44,7 +45,7 @@ public class Job : DoId
     {
         if (Recurrence.HasValue)
         {
-            ExecutionTime = ExecutionTime.Add(Recurrence.Value);
+            NextExecutionTime = NextExecutionTime.Add(Recurrence.Value);
         }
     }
     

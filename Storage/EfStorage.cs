@@ -42,7 +42,7 @@ public class EfStorage<TDbContext> : IStorage
         
         var now = DateTime.UtcNow;
         var jobsToRun = jobs
-            .Where(j => j.ExecutionTime <= now && (j.Recurrence != null || j.Executions.Count == 0))
+            .Where(j => j.NextExecutionTime <= now && (j.Recurrence != null || j.Executions.Count == 0))
             .ToArray();
         
         foreach (var job in jobsToRun)
@@ -71,6 +71,15 @@ public class EfStorage<TDbContext> : IStorage
         
         if (execution is null) return;
 
+        if (newState == ExecutionState.Running)
+        {
+            execution.Started = DateTime.UtcNow;
+        }
+        else if (newState == ExecutionState.Ended)
+        {
+            execution.Ended = DateTime.UtcNow;
+        }
+        
         execution.State = newState;
         context.Update(execution);
         await context.SaveChangesAsync();
