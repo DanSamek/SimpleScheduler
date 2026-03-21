@@ -10,14 +10,14 @@ public class SchedulerHubNotifier
     /// <summary>
     /// .Ctor
     /// </summary>
-    public SchedulerHubNotifier(IHubContext<SchedulerHub>  hubContext)
+    public SchedulerHubNotifier(IHubContext<SchedulerHub> hubContext)
     {
         _hubContext = hubContext;
     }
 
     public async Task NotifyClients(Job job)
     {
-        var dto = new JobDto(job.Key, job.State, job.ExecutionTime);
+        var dto = new JobDto(job.Id, job.Key, job.State.ToString(), job.ExecutionTime);
         await _hubContext.Clients.All.SendAsync("JobUpdate", dto);
     }
 }

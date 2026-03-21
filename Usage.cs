@@ -14,7 +14,6 @@ public static class Usage
         var options = new SchedulerOptions();
         optionsAction.Invoke(options);
 
-        services.AddSignalR();
         services.AddSingleton<SchedulerHubNotifier>();
         services.AddSingleton<IStorage>(sp =>
         {
@@ -37,6 +36,8 @@ public static class Usage
         services
             .AddRazorPages()
             .AddApplicationPart(typeof(Usage).Assembly);
+        
+        services.AddSignalR();
     }
     
     /// <summary>
@@ -57,10 +58,10 @@ public static class Usage
         scheduler.Run();
         
         app.UseRouting();
+
+        app.UseStaticFiles();
         
         app.MapHub<SchedulerHub>("/simple-scheduler-hub");
-        
-        app.MapStaticAssets();
         app.MapRazorPages()
             .WithStaticAssets();
 

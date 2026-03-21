@@ -1,3 +1,4 @@
+@using System.Globalization
 @model SimpleScheduler.Views.SimpleScheduler.Index;
 
 @{
@@ -8,6 +9,7 @@
 <html>
 <head>
     <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/simple-scheduler.js"></script>
     <title>Simple scheduler</title>
 </head>
 <body>
@@ -18,10 +20,11 @@
 <div class="jobs">
     @foreach (var job in Model.Jobs)
     {
-        <div class="jon">
+        <div id="job-@job.Id">
             <span>@job.Key</span>
             <span>@job.IsRecurrent()</span>
-            <span>@job.State</span>
+            <span class="state">@job.State</span>
+            <span>@job.ExecutionTime.ToString(CultureInfo.InvariantCulture)</span>
         </div>
     }
 </div>
