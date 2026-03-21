@@ -10,6 +10,17 @@ public class SimpleSchedulerContext : DbContext
     /// </summary>
     public SimpleSchedulerContext(DbContextOptions<SimpleSchedulerContext> options)
         : base(options) { }
-    
-    public DbSet<Job> Jobs { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.AddSimpleScheduler();
+    }
+}
+
+public static class ModelBuilderExtensions
+{
+    public static void AddSimpleScheduler(this ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Job>();
+    }
 }

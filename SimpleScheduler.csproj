@@ -19,9 +19,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="src\Client\" />
-    <Folder Include="src\Migrations\" />
+    <Folder Include="Client\" />
+    <Folder Include="Migrations\" />
   </ItemGroup>
+
+  
+    <ItemGroup>
+        <EmbeddedResource Include="Pages\**\*.cshtml" />
+    </ItemGroup>
     
 
 </Project>

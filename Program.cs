@@ -1,21 +1,19 @@
-﻿using SimpleScheduler;
+﻿using Microsoft.EntityFrameworkCore;
+using SimpleScheduler;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<SimpleSchedulerContext>(dbOptions => dbOptions.UseInMemoryDatabase("SimpleScheduler"));
 
 builder.Services.AddSimpleScheduler(options =>
 {
     options.NumberOfThreads = 4;
+    options.DbContextType = typeof(SimpleSchedulerContext);
 });
 
 var app = builder.Build();
 
 app.UseSimpleScheduler();
-app.MapGet("/", () => "Simple scheduler");
-app.MapGet("/jobs", (SimpleSchedulerContext context) =>
-{
-    var result = context.Jobs.ToArray();
-    return result;  
-});
 
 Jobs.AddRecurringJob(() =>
 {
@@ -24,5 +22,6 @@ Jobs.AddRecurringJob(() =>
     Console.WriteLine("[END] Some recurrent running job");
     return Task.CompletedTask;
 }, TimeSpan.FromSeconds(60));
+
 
 app.Run();

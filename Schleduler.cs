@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.SignalR;
 using SimpleScheduler.Entities;
-using SimpleScheduler.Hub;
 using SimpleScheduler.Mapper;
 using SimpleScheduler.Storage;
 using SimpleScheduler.ThreadPool;
@@ -37,9 +35,9 @@ public class Scheduler
 
     private async Task Loop()
     {
-        try
+        while (true)
         {
-            while (true)
+            try
             {
                 var jobs = _storage.JobsToRun();
                 var tasks = _jobMapper.GetTaskForJobs(jobs);
@@ -56,11 +54,11 @@ public class Scheduler
                 
                 await _timer.WaitForNextTickAsync();
             }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 
@@ -72,5 +70,10 @@ public class Scheduler
     internal async Task OnEnded(string jobKey)
     {
         await _storage.SetEndedState(jobKey);
+    }
+
+    public async Task OnException(string jobKey, Exception exception)
+    {
+        await _storage.SetFailedState(jobKey, exception.StackTrace ?? string.Empty);
     }
 }

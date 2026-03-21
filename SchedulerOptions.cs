@@ -9,4 +9,9 @@ public record SchedulerOptions
     /// Number of threads that can be used for the thread pool.
     /// </summary>
     public int NumberOfThreads { get; set; }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public Type DbContextType { get; set; } = null!;
 }

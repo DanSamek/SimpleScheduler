@@ -14,9 +14,6 @@ public class Job
         ExecutionTime = DateTime.UtcNow.Add(delay ?? TimeSpan.Zero);
     }
 
-    /// <summary>
-    /// Ef constructor!
-    /// </summary>
     public Job()
     {
         Key = "";
@@ -36,18 +33,23 @@ public class Job
     /// <summary>
     /// Key of the job.
     /// </summary>
-    public string Key { get; private set; }
+    public string Key { get; set; }
     
     /// <summary>
     /// Recurrence time for the job.
     /// </summary>
-    public TimeSpan? Recurrence { get; private set; }
+    public TimeSpan? Recurrence { get; set; }
     
     /// <summary>
     /// Execution time of the job.
     /// </summary>
-    public DateTime ExecutionTime { get; private set; }
-    
+    public DateTime ExecutionTime { get; set; }
+
+    /// <summary>
+    /// Error message if job is failed.
+    /// </summary>
+    public string? Error { get; set; }
+
     /// <summary>
     /// Moves execution time for the recurrent job.
     /// </summary>

@@ -1,0 +1,29 @@
+@model SimpleScheduler.Views.SimpleScheduler.Index;
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html> 
+<html>
+<head>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <title>Simple scheduler</title>
+</head>
+<body>
+<div>
+    Simple scheduler
+</div>
+
+<div class="jobs">
+    @foreach (var job in Model.Jobs)
+    {
+        <div class="jon">
+            <span>@job.Key</span>
+            <span>@job.IsRecurrent()</span>
+            <span>@job.State</span>
+        </div>
+    }
+</div>
+</body>
+</html>

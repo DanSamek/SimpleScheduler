@@ -21,10 +21,17 @@ internal class Worker
         while (true)
         {
             if (!_jobQueue.TryDequeue(out var data)) continue;
-            await data.Scheduler.OnRunning(data.Key);
-            await data.Job();
-            await data.Scheduler.OnEnded(data.Key);
-        }
+            var scheduler = data.Scheduler;
+            try
+            {
+                await scheduler.OnRunning(data.Key);
+                await data.Job();
+                await scheduler.OnEnded(data.Key);
+            }
+            catch (Exception ex)
+            {
+                await scheduler.OnException(data.Key, ex);
+            }
+        }   
     }
-    
 }

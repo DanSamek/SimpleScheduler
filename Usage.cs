@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using SimpleScheduler.Hub;
 using SimpleScheduler.Mapper;
 using SimpleScheduler.Storage;
@@ -17,9 +15,13 @@ public static class Usage
         optionsAction.Invoke(options);
 
         services.AddSignalR();
-        services.AddDbContext<SimpleSchedulerContext>(dbOptions => dbOptions.UseInMemoryDatabase("SimpleScheduler"));
         services.AddSingleton<SchedulerHubNotifier>();
-        services.AddSingleton<IStorage, EfStorage>();
+        services.AddSingleton<IStorage>(sp =>
+        {
+            var storageType = typeof(EfStorage<>).MakeGenericType(options.DbContextType);
+            var instance = (IStorage)ActivatorUtilities.CreateInstance(sp, storageType);
+            return instance;
+        });
         services.AddSingleton<ThreadPool.ThreadPool>(_ => new ThreadPool.ThreadPool(options.NumberOfThreads));
         services.AddSingleton<IJobMapper, JobMapper>(_ => new JobMapper());
 
@@ -31,19 +33,18 @@ public static class Usage
             var instance = new Scheduler(threadPool, storage, jobMapper);
             return instance;
         });
+        
+        services
+            .AddRazorPages()
+            .AddApplicationPart(typeof(Usage).Assembly);
     }
     
     /// <summary>
     /// Runs scheduler in the background.
     /// </summary>
-    public static void UseSimpleScheduler(this IApplicationBuilder app)
+    public static void UseSimpleScheduler(this WebApplication app)
     {
-        if (app is IEndpointRouteBuilder erp)
-        {
-            erp.MapHub<SchedulerHub>("/simple-scheduler");
-        }
-        
-        var services = app.ApplicationServices;
+        var services = app.Services;
         var threadPool = services.GetService<ThreadPool.ThreadPool>()!;
         var scheduler = services.GetService<Scheduler>()!;
         var mapper = services.GetService<IJobMapper>()!;
@@ -54,5 +55,15 @@ public static class Usage
         
         threadPool.Run();
         scheduler.Run();
+        
+        app.UseRouting();
+        
+        app.MapHub<SchedulerHub>("/simple-scheduler-hub");
+        
+        app.MapStaticAssets();
+        app.MapRazorPages()
+            .WithStaticAssets();
+
+        app.MapControllers();
     }
 }

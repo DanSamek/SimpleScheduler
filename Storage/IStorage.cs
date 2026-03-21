@@ -21,6 +21,11 @@ public interface IStorage
     /// Updates state of the job under certain key.
     /// </summary>
     public Task UpdateJobState(string jobKey, JobState newState);
+    
+    /// <summary>
+    /// Updates a job state to a failed. 
+    /// </summary>
+    public Task SetFailedState(string jobKey, string errorMessage);
 
     /// <summary>
     /// Sets properly state for the task:
@@ -28,4 +33,9 @@ public interface IStorage
     /// if its -> Inactive
     /// </summary>
     public Task SetEndedState(string jobKey);
+    
+    /// <summary>
+    /// Returns all jobs.
+    /// </summary>
+    public List<Job> AllJobs();
 }
