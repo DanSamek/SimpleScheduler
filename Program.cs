@@ -7,7 +7,7 @@ builder.Services.AddDbContext<SimpleSchedulerContext>(dbOptions => dbOptions.Use
 
 builder.Services.AddSimpleScheduler(options =>
 {
-    options.NumberOfThreads = 1;
+    options.NumberOfThreads = 2;
     options.DbContextType = typeof(SimpleSchedulerContext);
 });
 
@@ -18,10 +18,10 @@ var app = builder.Build();
 
 app.UseSimpleScheduler();
 
-//Jobs.AddInstantJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
 Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
 Jobs.AddRecurringJob<Test>(t => t.Run2(), TimeSpan.FromSeconds(10));
 Jobs.AddRecurringJob<Test>(t => t.RunException(), TimeSpan.FromSeconds(10));
+Jobs.AddInstantJob<Test>(t => t.LongRunningJob());
 app.Run();
 
 class Test
@@ -39,5 +39,10 @@ class Test
     public Task RunException()
     {
         throw new Exception();
+    }
+
+    public async Task LongRunningJob()
+    {
+        await Task.Delay(TimeSpan.FromMinutes(1));
     }
 }

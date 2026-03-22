@@ -1,55 +1,6 @@
 @model SimpleScheduler.Views.SimpleScheduler.Index;
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Simple scheduler";
+    Layout = "_Layout";
 }
-
-<!DOCTYPE html> 
-<html>
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="~/js/signalr/dist/browser/signalr.js"></script>
-    <script src="~/js/simple-scheduler.js"></script>
-    <link rel="stylesheet" href="~/css/bulma.min.css">
-    <link rel="stylesheet" href="~/css/simple-scheduler.css">
-    <title>Simple scheduler</title>
-</head>
-<body>
-
-<div class="container">
-<div>
-    Simple scheduler
-</div>
-    <table class="table is-striped jobs container">
-        <thead>
-        <tr>
-            <th>Job key</th>
-            <th>State</th>
-            <th>Started</th>
-            <th>Ended</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        <tr style="display: none" id="job-unknown">
-            <td class="key">0</td>
-            <td class="state"><span class="tag">0</span></td>
-            <td class="start-time">0</td>
-            <td class="end-time">0</td>
-        </tr>
-
-        @foreach (var info in Model.ExecutionInfos)
-        {
-            <tr id="job-@info.Id">
-                <td class="key">@info.Key</td>
-                <td class="state"><span class="tag @info.State">@info.State</span></td>
-                <td class="start-time">@info.Started</td>
-                <td class="end-time">@info.Ended</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-</div>
-</body>
-</html>

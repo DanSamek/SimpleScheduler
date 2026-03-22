@@ -1,0 +1,17 @@
+@model SimpleScheduler.Views.SimpleScheduler.Execution
+
+@{
+    ViewData["Title"] = Model.ExecutionDto.Key;
+    Layout = "_Layout";
+}
+
+@if (Model.ExecutionDto.Error != null)
+{
+    <div class="content">
+        <p>Error</p>
+        <code>
+            @Model.ExecutionDto.Error
+        </code>
+
+    </div>
+}

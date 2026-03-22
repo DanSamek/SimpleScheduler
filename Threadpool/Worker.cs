@@ -1,18 +1,18 @@
-using System.Collections.Concurrent;
+using System.Threading.Channels;
 
 namespace SimpleScheduler.ThreadPool;
 
 internal class Worker
 {
-    private readonly ConcurrentQueue<WorkerData> _jobQueue;
+    private readonly ChannelReader<WorkerData> _channel;
     private readonly int _id;
     
     /// <summary>
     /// .Ctor
     /// </summary>
-    public Worker(ConcurrentQueue<WorkerData> jobQueue, int id)
+    public Worker(ChannelReader<WorkerData> channel, int id)
     {
-        _jobQueue = jobQueue;
+        _channel = channel;
         _id = id;
     }
     
@@ -20,9 +20,7 @@ internal class Worker
     {
         while (true)
         {
-            if (!_jobQueue.TryDequeue(out var data)) continue;
-            var scheduler = data.Scheduler;
-            var executionWithJob = data.ExecutionWithJob;
+            var (executionWithJob, scheduler) = await _channel.ReadAsync();
             var executionId = executionWithJob.Execution.Id;
             try
             {
@@ -40,6 +38,6 @@ internal class Worker
             {
                 await scheduler.OnException(executionId, ex);
             }
-        }   
+        }
     }
 }

@@ -1,0 +1,39 @@
+@model SimpleScheduler.Views.SimpleScheduler.Executions
+
+@{
+    ViewData["Title"] = "Executions";
+    Layout = "_Layout";
+}
+
+<table class="table is-striped jobs container">
+    <thead>
+    <tr>
+        <th>Job key</th>
+        <th>State</th>
+        <th>Started</th>
+        <th>Ended</th>
+        <th>Detail</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr style="display: none" id="job-unknown">
+        <td class="key">0</td>
+        <td class="state"><span class="tag">0</span></td>
+        <td class="start-time">0</td>
+        <td class="end-time">0</td>
+        <td class="detail">0</td>
+    </tr>
+
+    @foreach (var info in Model.ExecutionsList)
+    {
+        <tr  id="job-@info.Id">
+            <td class="key">@info.Key</td>
+            <td class="state"><span class="tag @info.State">@info.State</span></td>
+            <td class="start-time">@info.Started</td>
+            <td class="end-time">@info.Ended</td>
+            <td class="detail"><a target="_blank" href="/simple-scheduler/executions/@info.Id">Click</a></td>
+        </tr>
+    }
+    </tbody>
+</table>

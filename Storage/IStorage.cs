@@ -36,4 +36,19 @@ public interface IStorage
     /// Returns time span for the next nearest job to be executed.
     /// </summary>
     public Task<TimeSpan> NearestExecutionTimeForJob();
+
+    /// <summary>
+    /// All jobs registered by user in the code.
+    /// </summary>
+    public Task<List<Job>> AllJobs();
+
+    /// <summary>
+    /// Returns executions for the job id.
+    /// </summary>
+    public Task<Execution?> GetExecution(int jobId);
+
+    /// <summary>
+    /// Returns execution by id.
+    /// </summary>
+    public Task<Execution?> ExecutionById(int id);
 }

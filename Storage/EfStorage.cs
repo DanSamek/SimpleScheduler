@@ -4,6 +4,11 @@ using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Storage;
 
+/*
+ * TODO somehow DRY !
+using var scope = _scopeFactory.CreateScope();
+await using var context = scope.GetSchedulerContext<TDbContext>();   
+ */
 public class EfStorage<TDbContext> : IStorage
     where TDbContext : DbContext
 {
@@ -142,6 +147,45 @@ public class EfStorage<TDbContext> : IStorage
         
         var result = nearestExecutionTime - now;
         return result;
+    }
+    
+    /// <inheritdoc />
+    public async Task<List<Job>> AllJobs()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        await using var context = scope.GetSchedulerContext<TDbContext>();
+        
+        var jobs = context.Set<Job>().ToList();
+        return jobs;
+    }
+    
+    /// <inheritdoc />
+    public async Task<Execution?> GetExecution(int jobId)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        await using var context = scope.GetSchedulerContext<TDbContext>();
+        var job = context.Set<Job>()
+            .FirstOrDefault(j => j.Id == jobId);
+        if (job is null) return null;
+        
+        var execution = new Execution { Job = job, State = ExecutionState.Created };
+        context.Set<Execution>().Add(execution);
+        await context.SaveChangesAsync();
+        return execution;
+    }
+
+    
+    /// <inheritdoc />
+    public async Task<Execution?> ExecutionById(int id)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        await using var context = scope.GetSchedulerContext<TDbContext>();
+        var execution = context.Set<Execution>()
+            .AsNoTracking()
+            .Include(e => e.Job)
+            .FirstOrDefault(j => j.Id == id);
+        
+        return execution;
     }
 }
 

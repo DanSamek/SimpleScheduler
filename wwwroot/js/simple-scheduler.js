@@ -21,8 +21,35 @@ connection.on("ExecutionUpdate", function (dto) {
     const tag = execution.querySelector(".state").querySelector(".tag");
     tag.innerText = dto.state;
     tag.removeAttribute("class");
-    tag.classList.add("tag")
-    tag.classList.add(dto.state)
+    tag.classList.add("tag");
+    tag.classList.add(dto.state);
     execution.querySelector(".start-time").innerText = dto.started;
     execution.querySelector(".end-time").innerText = dto.ended;
+    execution.querySelector(".detail").innerHTML =`<a href=\"/simple-scheduler/executions/${dto.id}\">Click</a></td>`
+});
+
+async function schedule(jobId){
+    const result = await fetch(`/simple-scheduler/jobs/schedule/${jobId}`, {
+        method: "POST"
+    });
+    console.log(result);
+    // TODO alert (?)
+    if (result.ok){
+        
+    }
+    else{   
+        
+    }
+}
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const navBarBurger = document.querySelector('.navbar-burger');
+    
+    navBarBurger.addEventListener('click', () => {
+        document.querySelector('.navbar-menu').classList.toggle('is-active');
+        navBarBurger.classList.toggle("is-active");
+    })
+    
 });

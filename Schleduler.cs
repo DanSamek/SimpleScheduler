@@ -42,9 +42,7 @@ public class Scheduler
 
                 foreach (var execution in executionsWithJobs)
                 {
-                    var data = new WorkerData(execution, this);
-                    await OnEnqueued(execution.Execution.Id);
-                    _threadPool.EnqueueJob(data);
+                    await Enqueue(execution);
                 }
 
                 var nearestTimeForNextJob = await _storage.NearestExecutionTimeForJob();
@@ -78,5 +76,26 @@ public class Scheduler
     public async Task OnException(int executionId, Exception exception)
     {
         await _storage.SetExecutionFailedState(executionId, exception.StackTrace ?? string.Empty);
+    }
+    
+    /// <summary>
+    /// Schedules a job on the thread pool.
+    /// </summary>
+    /// <param name="id">Id of the job</param>
+    internal async Task<bool> ScheduleJob(int id)
+    {
+        var execution = await _storage.GetExecution(id);
+        if (execution == null) return false;
+        
+        var executionWithJob = _jobMapper.GetTaskForExecutions([execution]).First();
+        await Enqueue(executionWithJob);
+        return true;
+    }
+
+    private async Task Enqueue(ExecutionWithJob executionWithJob)
+    {
+        var data = new WorkerData(executionWithJob,this);
+        await OnEnqueued(executionWithJob.Execution.Id);
+        await _threadPool.EnqueueJob(data);
     }
 }

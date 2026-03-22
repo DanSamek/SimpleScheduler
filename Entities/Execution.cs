@@ -3,7 +3,7 @@ using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Entities;
 
-public class Execution : DoId
+public class Execution : DoId, IDto<ExecutionDto>
 {
     /// <summary>
     /// Job that is executed.
@@ -30,9 +30,10 @@ public class Execution : DoId
     /// </summary>
     public DateTime Ended { get; set; } 
     
-    public ExecutionDto AsDto()
+    /// <inheritdoc /> 
+    public ExecutionDto ToDto()
     {
         return new ExecutionDto(Id, Job.Key, State.ToString(),
-            Started.ToString(CultureInfo.InvariantCulture), Ended.ToString(CultureInfo.InvariantCulture) ?? "");
+            Started.ToString(CultureInfo.InvariantCulture), Ended.ToString(CultureInfo.InvariantCulture) ?? "", Error);
     }
 }

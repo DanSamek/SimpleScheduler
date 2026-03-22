@@ -1,0 +1,37 @@
+@model SimpleScheduler.Views.SimpleScheduler.Jobs
+
+@{
+    ViewData["Title"] = "Jobs";
+    Layout = "_Layout";
+}
+
+<div class="content">
+    <p>*Run button won't affect next execution time</p>
+</div>
+
+<table class="table is-striped jobs container">
+    <thead>
+    <tr>
+        <th>Job key</th>
+        <th>Class type</th>
+        <th>Method name</th>
+        <th>Recurrent</th>
+        <th>Next execution time</th>
+        <th>Run*</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    @foreach (var job in Model.JobItems)
+    {
+        <tr id="job-@job.Id">
+            <td class="key">@job.Key</td>
+            <td class="type">@job.Type</td>
+            <td class="method-name">@job.MethodName</td>
+            <td class="is-recurrent">@job.IsRecurrent</td>
+            <td class="next-execution-time">@job.NextExecutionTime</td>
+            <td class="run"><button class="button" onclick="schedule(@job.Id)">Run</button></td>
+         </tr>
+    }
+    </tbody>
+</table>

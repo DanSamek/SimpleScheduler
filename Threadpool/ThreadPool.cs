@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Threading.Channels;
 
 namespace SimpleScheduler.ThreadPool;
 
@@ -8,16 +9,15 @@ namespace SimpleScheduler.ThreadPool;
 public class ThreadPool
 {
     private readonly Worker[] _workers;
-    private readonly ConcurrentQueue<WorkerData>[] _jobQueues;
-    
+    private readonly Channel<WorkerData>[] _jobChannels;
     public ThreadPool(int numberOfWorkers)
     {
-        _jobQueues = new ConcurrentQueue<WorkerData>[numberOfWorkers];
+        _jobChannels = new Channel<WorkerData>[numberOfWorkers];
         
-        for (var i = 0; i < _jobQueues.Length; i++) _jobQueues[i] = new ConcurrentQueue<WorkerData>();
+        for (var i = 0; i < _jobChannels.Length; i++) _jobChannels[i] = Channel.CreateUnbounded<WorkerData>();
         
         _workers = new  Worker[numberOfWorkers];
-        for (var i = 0; i < numberOfWorkers; i++) _workers[i] = new Worker(_jobQueues[i], i);
+        for (var i = 0; i < numberOfWorkers; i++) _workers[i] = new Worker(_jobChannels[i].Reader, i);
     }
 
     /// <summary>
@@ -36,9 +36,10 @@ public class ThreadPool
     /// <summary>
     /// Enqueues a job to run on the thread pool worker.
     /// </summary>
-    internal void EnqueueJob(WorkerData data)
+    internal async Task EnqueueJob(WorkerData data)
     {
-        var minWorkQueue = _jobQueues.MinBy(x => x.Count);
-        minWorkQueue!.Enqueue(data);
+        // TODO somehow by estimated time?
+        var minChannel = _jobChannels.MinBy(ch => ch.Reader.Count);
+        await minChannel!.Writer.WriteAsync(data);
     }
 }

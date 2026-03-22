@@ -1,6 +1,9 @@
+using System.Globalization;
+using SimpleScheduler.Hub;
+
 namespace SimpleScheduler.Entities;
 
-public class Job : DoId
+public class Job : DoId, IDto<JobDto>
 {
     /// <summary>
     /// Ctor
@@ -55,7 +58,7 @@ public class Job : DoId
     /// <summary>
     /// Moves execution time for the recurrent job.
     /// </summary>
-    public void MoveExecutionTime()
+    internal void MoveExecutionTime()
     {
         if (Recurrence.HasValue)
         {
@@ -64,7 +67,13 @@ public class Job : DoId
     }
     
     /// <summary>
-    /// If the job is recurent.
+    /// If the job is recurrent.
     /// </summary>
-    public bool IsRecurrent() => Recurrence.HasValue;
+    internal bool IsRecurrent() => Recurrence.HasValue;
+    
+    /// <inheritdoc /> 
+    public JobDto ToDto()
+    {
+        return new JobDto(Id, Key, Type, MethodName, IsRecurrent(), IsRecurrent() ? NextExecutionTime.ToString(CultureInfo.InvariantCulture) : "NO-TIME");
+    }
 }

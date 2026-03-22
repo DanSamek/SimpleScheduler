@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/simple-scheduler.js"></script>
+    <link rel="stylesheet" href="~/css/bulma.min.css">
+    <link rel="stylesheet" href="~/css/simple-scheduler.css">
+    <title>Simple scheduler - @ViewData["Title"]</title>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="simple-scheduler-navbar">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+    </a>
+    
+    <div id="simple-scheduler-navbar" class="navbar-menu">
+    <div class="navbar-start">
+        <a class="navbar-item" href="/simple-scheduler/">
+            Home
+        </a>
+        <a class="navbar-item" href="/simple-scheduler/jobs">
+            Jobs
+        </a>
+        <a class="navbar-item" href="/simple-scheduler/executions">
+            Executions
+        </a>
+    </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1 class="title">@ViewData["Title"]</h1>
+    @RenderBody()
+</div>
+</body>
+</html>
