@@ -10,8 +10,6 @@ public class Scheduler
     private readonly ThreadPool.ThreadPool _threadPool;
     private readonly IStorage _storage;
     private readonly IJobMapper _jobMapper;
-    
-    private readonly PeriodicTimer _timer = new PeriodicTimer(TimeSpan.FromSeconds(5));
 
     /// <summary>
     /// .Ctor
@@ -48,14 +46,16 @@ public class Scheduler
                     await OnEnqueued(execution.Execution.Id);
                     _threadPool.EnqueueJob(data);
                 }
-                
-                
-                await _timer.WaitForNextTickAsync();
+
+                var nearestTimeForNextJob = await _storage.NearestExecutionTimeForJob();
+                if (nearestTimeForNextJob.Ticks > 0)
+                {
+                    await Task.Delay(nearestTimeForNextJob);
+                }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
         }
     }

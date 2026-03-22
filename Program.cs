@@ -18,16 +18,19 @@ var app = builder.Build();
 
 app.UseSimpleScheduler();
 
-Jobs.AddInstantJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10), key: "test-run-instant");
-Jobs.AddInstantJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10), key: "test-run-instant-2");
-Jobs.AddInstantJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10), key: "test-run-instant-3");
-Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), "test-run-recurring");
-
+//Jobs.AddInstantJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
+Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
+Jobs.AddRecurringJob<Test>(t => t.Run2(), TimeSpan.FromSeconds(10));
 app.Run();
 
 class Test
 {
     public async Task Run()
+    {
+        await Task.Delay(5000);
+    }
+
+    public async Task Run2()
     {
         await Task.Delay(5000);
     }

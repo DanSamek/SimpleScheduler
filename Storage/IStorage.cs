@@ -31,4 +31,9 @@ public interface IStorage
     /// Returns all executions.
     /// </summary>
     public List<Execution> AllExecutions();
+
+    /// <summary>
+    /// Returns time span for the next nearest job to be executed.
+    /// </summary>
+    public Task<TimeSpan> NearestExecutionTimeForJob();
 }

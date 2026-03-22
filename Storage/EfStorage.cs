@@ -92,7 +92,8 @@ public class EfStorage<TDbContext> : IStorage
         
         await _hubNotifier.NotifyClients(execution);
     }
-
+    
+    /// <inheritdoc />
     public async Task SetExecutionFailedState(int executionId, string errorMessage)
     { 
         using var scope = _scopeFactory.CreateScope();
@@ -112,6 +113,7 @@ public class EfStorage<TDbContext> : IStorage
         await context.SaveChangesAsync();
     }
 
+    /// <inheritdoc />
     public List<Execution> AllExecutions()
     { 
         using var scope = _scopeFactory.CreateScope();
@@ -121,6 +123,23 @@ public class EfStorage<TDbContext> : IStorage
             .ToList();
         
         return executions;
+    }
+
+    /// <inheritdoc />
+    public async Task<TimeSpan> NearestExecutionTimeForJob()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        await using var context = scope.GetSchedulerContext<TDbContext>();
+        
+        var nearestExecutionTime = context.Set<Job>()
+            .OrderBy(j => j.NextExecutionTime)
+            .Select(j => j.NextExecutionTime)
+            .FirstOrDefault();
+        
+        var now = DateTime.UtcNow;
+        
+        var result = nearestExecutionTime - now;
+        return result;
     }
 }
 

@@ -49,12 +49,3 @@ public static class Jobs
         _storage.AddJob(instance);
     }
 }
-
-public static class JobsExtensions
-{
-    public static string Key(this Func<Task> job)
-    {
-        var key = $"{job.Target?.GetType().FullName} {job.Method.Name}";
-        return key;
-    }
-}
