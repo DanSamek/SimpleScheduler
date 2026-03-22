@@ -13,12 +13,17 @@ public class Execution : DoId, IDto<ExecutionDto>
     /// <summary>
     /// State of the job execution.
     /// </summary>
-    public ExecutionState State { get; set; } = ExecutionState.Queued;
+    public ExecutionState State { get; set; } = ExecutionState.Created;
     
     /// <summary>
     /// Error message of the execution.
     /// </summary>
     public string? Error { get; set; }
+
+    /// <summary>
+    /// When the execution was created. 
+    /// </summary>
+    public DateTime Created { get; set; } = DateTime.UtcNow;
     
     /// <summary>
     /// Time when job was started.

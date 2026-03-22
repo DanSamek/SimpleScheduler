@@ -5,6 +5,7 @@ connection.start().then(function () {
     return console.error(err.toString());
 });
 
+/*
 connection.on("ExecutionUpdate", function (dto) {
     let execution = document.querySelector(`#job-${dto.id}`);
     if (execution == null){
@@ -27,7 +28,7 @@ connection.on("ExecutionUpdate", function (dto) {
     execution.querySelector(".end-time").innerText = dto.ended;
     execution.querySelector(".detail").innerHTML =`<a href=\"/simple-scheduler/executions/${dto.id}\">Click</a></td>`
 });
-
+*/
 async function schedule(jobId){
     const result = await fetch(`/simple-scheduler/jobs/schedule/${jobId}`, {
         method: "POST"
@@ -41,8 +42,6 @@ async function schedule(jobId){
         
     }
 }
-
-
 
 document.addEventListener('DOMContentLoaded', () => {
     const navBarBurger = document.querySelector('.navbar-burger');

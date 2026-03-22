@@ -6,4 +6,7 @@ namespace SimpleScheduler.Views.SimpleScheduler;
 public class Executions : PageModel
 {
     public required List<ExecutionDto> ExecutionsList { get; set; }
+    public int TotalPages { get; set; }
+
+    public int PageIndex { get; set; }
 }

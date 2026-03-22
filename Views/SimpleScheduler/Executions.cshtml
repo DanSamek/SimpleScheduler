@@ -1,3 +1,4 @@
+@using Microsoft.AspNetCore.Html
 @model SimpleScheduler.Views.SimpleScheduler.Executions
 
 @{
@@ -37,3 +38,37 @@
     }
     </tbody>
 </table>
+
+<nav class="pagination is-centered" role="navigation" aria-label="pagination">
+    <ul class="pagination-list">
+        @if (Model.PageIndex > 0)
+        {
+            @Html.Raw(RenderPageItem(Model.PageIndex - 1, false))
+        }
+        @Html.Raw(RenderPageItem(Model.PageIndex, true))
+        @if (Model.PageIndex + 1 < Model.TotalPages)
+        {
+            @Html.Raw(RenderPageItem(Model.PageIndex + 1, false))
+        }
+    </ul>
+</nav>
+
+@functions
+{
+    private static string PageLink(int id)
+    {
+        return $"/simple-scheduler/executions?pageId={id}";
+    }
+    
+    private static string CurrentClass(bool current)
+    {
+        return current ? "is-current" : string.Empty;
+    }
+    
+    private static HtmlString RenderPageItem(int pageId, bool current)
+    {
+        var value = $"<li><a href=\"{PageLink(pageId)}\" class=\"pagination-link {CurrentClass(current)} \">{pageId}</a></li>";
+        var result = new HtmlString(value);
+        return result;
+    }
+}

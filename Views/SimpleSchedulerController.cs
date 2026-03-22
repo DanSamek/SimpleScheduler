@@ -5,7 +5,6 @@ using Index = SimpleScheduler.Views.SimpleScheduler.Index;
 
 namespace SimpleScheduler.Views;
 
-
 public class SimpleSchedulerController : Controller
 {
     private readonly IStorage _storage;
@@ -28,12 +27,17 @@ public class SimpleSchedulerController : Controller
     }
     
     [HttpGet("/simple-scheduler/executions")]
-    public IActionResult Executions()
+    public async Task<IActionResult> Executions([FromQuery] int? pageId)
     {
-        var result = _storage.AllExecutions();
+        var result = await _storage.ExecutionsPage(pageId ?? 0);
+        var totalPages = await _storage.TotalExecutionPages();
         var model = new Executions
         {
-            ExecutionsList = result.Select(e => e.ToDto()).ToList()
+            ExecutionsList = result
+                .Select(e => e.ToDto())
+                .ToList(),
+            TotalPages = totalPages,
+            PageIndex = pageId ?? 0
         };
         return View(model);
     }
