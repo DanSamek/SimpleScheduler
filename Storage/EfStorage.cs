@@ -111,6 +111,8 @@ public class EfStorage<TDbContext> : IStorage
 
         context.Update(execution);
         await context.SaveChangesAsync();
+        
+        await _hubNotifier.NotifyClients(execution);
     }
 
     /// <inheritdoc />

@@ -8,7 +8,7 @@ connection.start().then(function () {
 connection.on("ExecutionUpdate", function (dto) {
     let execution = document.querySelector(`#job-${dto.id}`);
     if (execution == null){
-        const parent = document.querySelector(".jobs");
+        const parent = document.querySelector(".jobs tbody");
         const unknownJob = parent.querySelector("#job-unknown");
         execution = unknownJob.cloneNode(true);
         
@@ -18,7 +18,11 @@ connection.on("ExecutionUpdate", function (dto) {
     }
 
     execution.querySelector(".key").innerText = dto.key;
-    execution.querySelector(".state").innerText = dto.state;
+    const tag = execution.querySelector(".state").querySelector(".tag");
+    tag.innerText = dto.state;
+    tag.removeAttribute("class");
+    tag.classList.add("tag")
+    tag.classList.add(dto.state)
     execution.querySelector(".start-time").innerText = dto.started;
     execution.querySelector(".end-time").innerText = dto.ended;
 });

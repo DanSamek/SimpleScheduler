@@ -21,6 +21,7 @@ app.UseSimpleScheduler();
 //Jobs.AddInstantJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
 Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
 Jobs.AddRecurringJob<Test>(t => t.Run2(), TimeSpan.FromSeconds(10));
+Jobs.AddRecurringJob<Test>(t => t.RunException(), TimeSpan.FromSeconds(10));
 app.Run();
 
 class Test
@@ -33,5 +34,10 @@ class Test
     public async Task Run2()
     {
         await Task.Delay(5000);
+    }
+
+    public Task RunException()
+    {
+        throw new Exception();
     }
 }

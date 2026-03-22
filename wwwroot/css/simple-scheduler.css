@@ -1,0 +1,14 @@
+.tag.Ended{
+    background-color:var(--bulma-primary);
+    color: var(--bulma-primary-invert);
+}
+
+.tag.Running{
+    background-color:var(--bulma-info);
+    color: var(--bulma-info-invert);
+}
+
+.tag.Failed{
+    background-color:var(--bulma-danger);
+    color: var(--bulma-danger-invert);
+}
