@@ -15,7 +15,7 @@ public interface IStorage
     /// <summary>
     /// Returns jobs to be processed by the thread pool.
     /// </summary>
-    public IReadOnlyList<Execution> JobsToRun();
+    public Task<IReadOnlyList<Execution>> JobsToRun();
     
     /// <summary>
     /// Updates state of the execution under a certain key.

@@ -39,12 +39,13 @@ public class Scheduler
         {
             try
             {
-                var executions = _storage.JobsToRun();
+                var executions = await _storage.JobsToRun();
                 var executionsWithJobs = _jobMapper.GetTaskForExecutions(executions);
 
                 foreach (var execution in executionsWithJobs)
                 {
                     var data = new WorkerData(execution, this);
+                    await OnEnqueued(execution.Execution.Id);
                     _threadPool.EnqueueJob(data);
                 }
                 
@@ -58,7 +59,12 @@ public class Scheduler
             }
         }
     }
-
+    
+    private async Task OnEnqueued(int executionId)
+    {
+        await _storage.UpdateExecutionState(executionId, ExecutionState.Queued);
+    }
+    
     internal async Task OnRunning(int executionId)
     {
         await _storage.UpdateExecutionState(executionId, ExecutionState.Running);

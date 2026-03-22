@@ -34,10 +34,10 @@ public class EfStorage<TDbContext> : IStorage
     }
 
     /// <inheritdoc />
-    public IReadOnlyList<Execution> JobsToRun()
+    public async Task<IReadOnlyList<Execution>> JobsToRun()
     {
         using var scope = _scopeFactory.CreateScope();
-        using var context = scope.GetSchedulerContext<TDbContext>();
+        await using var context = scope.GetSchedulerContext<TDbContext>();
         var jobs = context.Set<Job>();
         
         var now = DateTime.UtcNow;
@@ -50,13 +50,19 @@ public class EfStorage<TDbContext> : IStorage
             job.MoveExecutionTime();
         }
         
-        var result = jobsToRun
-            .Select(job => new Execution { Job = job })
+        var executions = jobsToRun
+            .Select(job => new Execution { Job = job, State = ExecutionState.Created })
             .ToList();
 
-        context.Set<Execution>().AddRange(result);
-        context.SaveChanges();
-        return result;
+        context.Set<Execution>().AddRange(executions);
+        await context.SaveChangesAsync();
+
+        foreach (var execution in executions)
+        {
+            await _hubNotifier.NotifyClients(execution);
+        }
+        
+        return executions;
     }
 
     public async Task UpdateExecutionState(int executionId, ExecutionState newState)

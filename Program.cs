@@ -7,21 +7,28 @@ builder.Services.AddDbContext<SimpleSchedulerContext>(dbOptions => dbOptions.Use
 
 builder.Services.AddSimpleScheduler(options =>
 {
-    options.NumberOfThreads = 4;
+    options.NumberOfThreads = 1;
     options.DbContextType = typeof(SimpleSchedulerContext);
 });
+
+// Force to the DI container.
+builder.Services.AddTransient<Test>();
 
 var app = builder.Build();
 
 app.UseSimpleScheduler();
 
-Jobs.AddRecurringJob(() =>
-{
-    Console.WriteLine("[START] Some recurrent running job");
-    Thread.Sleep(10000);
-    Console.WriteLine("[END] Some recurrent running job");
-    return Task.CompletedTask;
-}, TimeSpan.FromSeconds(60));
-
+Jobs.AddInstantJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10), key: "test-run-instant");
+Jobs.AddInstantJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10), key: "test-run-instant-2");
+Jobs.AddInstantJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10), key: "test-run-instant-3");
+Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), "test-run-recurring");
 
 app.Run();
+
+class Test
+{
+    public async Task Run()
+    {
+        await Task.Delay(5000);
+    }
+}

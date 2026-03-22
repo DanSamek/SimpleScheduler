@@ -9,11 +9,6 @@ namespace SimpleScheduler.Mapper;
 public interface IJobMapper
 {
     /// <summary>
-    /// Adds a job the mapper.
-    /// </summary>
-    void AddJob(Func<Task> job, string key);
-    
-    /// <summary>
     /// Returns mapped jobs to the specified keys.  
     /// </summary>
     IEnumerable<ExecutionWithJob> GetTaskForExecutions(IEnumerable<Execution> executions);

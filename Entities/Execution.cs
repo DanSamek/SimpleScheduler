@@ -28,11 +28,11 @@ public class Execution : DoId
     /// <summary>
     /// Time when job ended.
     /// </summary>
-    public DateTime? Ended { get; set; } 
+    public DateTime Ended { get; set; } 
     
     public ExecutionDto AsDto()
     {
         return new ExecutionDto(Id, Job.Key, State.ToString(),
-            Started.ToString(CultureInfo.InvariantCulture), Ended?.ToString(CultureInfo.InvariantCulture) ?? "");
+            Started.ToString(CultureInfo.InvariantCulture), Ended.ToString(CultureInfo.InvariantCulture) ?? "");
     }
 }

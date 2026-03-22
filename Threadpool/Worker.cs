@@ -22,14 +22,18 @@ internal class Worker
         {
             if (!_jobQueue.TryDequeue(out var data)) continue;
             var scheduler = data.Scheduler;
-            var executionId = data.ExecutionWithJob.Execution.Id;
+            var executionWithJob = data.ExecutionWithJob;
+            var executionId = executionWithJob.Execution.Id;
             try
             {
                 await scheduler.OnRunning(executionId);
-                if (data.ExecutionWithJob.Job != null)
+                var job = (Task?)executionWithJob.MethodInfo.Invoke(executionWithJob.Object, null);
+                if (job == null)
                 {
-                    await data.ExecutionWithJob.Job();   
+                    throw new NullReferenceException("Job is null");
                 }
+
+                await job;
                 await scheduler.OnEnded(executionId);
             }
             catch (Exception ex)

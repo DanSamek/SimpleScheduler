@@ -1,5 +1,5 @@
+using System.Linq.Expressions;
 using SimpleScheduler.Entities;
-using SimpleScheduler.Mapper;
 using SimpleScheduler.Storage;
 
 namespace SimpleScheduler;
@@ -10,36 +10,43 @@ namespace SimpleScheduler;
 public static class Jobs
 {
     private static IStorage _storage = null!;
-    private static IJobMapper _jobMapper = null!;
-
+    
     /// <summary>
     /// Sets a storage to use for jobs.
     /// </summary>
     public static void SetStorage(IStorage storage) => _storage = storage;
     
     /// <summary>
-    /// Sets a job mapper to use.
-    /// </summary>
-    public static void SetJobMapper(IJobMapper mapper) => _jobMapper = mapper;
-
-    /// <summary>
     /// Executes a job once.
     /// </summary>
-    public static void AddInstantJob(Func<Task> job, TimeSpan? delay = null)
+    public static void AddInstantJob<T>(Expression<Func<T, Task>> job, TimeSpan? delay = null, string? key = null)
     {
-        var jobKey = job.Key();
-        _jobMapper.AddJob(job, jobKey);
-        _storage.AddJob(new Job(jobKey, delay: delay));
+        AddJob(job, delay: delay, key: key);
     }
 
     /// <summary>
     /// Executes a job repeatedly.
     /// </summary>
-    public static void AddRecurringJob(Func<Task> job, TimeSpan recurrence, TimeSpan? delay = null)
+    public static void AddRecurringJob<T>(Expression<Func<T, Task>> job, TimeSpan recurrence, TimeSpan? delay = null, string? key = null)
     {
-        var jobKey = job.Key();
-        _jobMapper.AddJob(job, jobKey);
-        _storage.AddJob(new Job(jobKey, recurrence, delay));
+        AddJob(job, recurrence, delay, key);
+    }
+
+    private static void AddJob<T>(Expression<Func<T, Task>> job, TimeSpan? recurrence = null, TimeSpan? delay = null, string? key = null)
+    {
+        if (job.Body is not MethodCallExpression methodCall)
+        {
+            throw new NotSupportedException("Expression is not supported, only method call is supported.");
+        }
+        var fullName = typeof(T).FullName;
+        if (fullName == null)
+        {
+            throw new NullReferenceException("Type name is null");
+        }
+        
+        var methodName = methodCall.Method.Name;
+        var instance = new Job(fullName, methodName,key, recurrence, delay);
+        _storage.AddJob(instance);
     }
 }
 

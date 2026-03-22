@@ -6,23 +6,19 @@ connection.start().then(function () {
 });
 
 connection.on("ExecutionUpdate", function (dto) {
-    const execution = document.querySelector(`#job-${dto.id}`);
+    let execution = document.querySelector(`#job-${dto.id}`);
     if (execution == null){
-        
         const parent = document.querySelector(".jobs");
         const unknownJob = parent.querySelector("#job-unknown");
-        const executionClone = unknownJob.cloneNode(true);
+        execution = unknownJob.cloneNode(true);
         
-        executionClone.style.removeProperty('display');
-        executionClone.id = `job-${dto.id}`;
-        executionClone.querySelector(".key").innerText = dto.key; 
-        executionClone.querySelector(".state").innerText = dto.state;
-        executionClone.querySelector(".start-time").innerText = dto.started;
-        executionClone.querySelector(".end-time").innerText = dto.ended;
-        parent.appendChild(executionClone);
-        return;
+        execution.style.removeProperty('display');
+        execution.id = `job-${dto.id}`;
+        parent.appendChild(execution);
     }
-    
+
+    execution.querySelector(".key").innerText = dto.key;
     execution.querySelector(".state").innerText = dto.state;
+    execution.querySelector(".start-time").innerText = dto.started;
     execution.querySelector(".end-time").innerText = dto.ended;
 });

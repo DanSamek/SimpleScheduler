@@ -22,16 +22,8 @@ public static class Usage
             return instance;
         });
         services.AddSingleton<ThreadPool.ThreadPool>(_ => new ThreadPool.ThreadPool(options.NumberOfThreads));
-        services.AddSingleton<IJobMapper, JobMapper>(_ => new JobMapper());
-
-        services.AddSingleton<Scheduler>(sp =>
-        {
-            var threadPool = sp.GetRequiredService<ThreadPool.ThreadPool>();
-            var storage = sp.GetRequiredService<IStorage>();
-            var jobMapper = sp.GetRequiredService<IJobMapper>();
-            var instance = new Scheduler(threadPool, storage, jobMapper);
-            return instance;
-        });
+        services.AddSingleton<IJobMapper, JobMapper>();
+        services.AddSingleton<Scheduler>();
         
         services
             .AddRazorPages()
@@ -48,10 +40,9 @@ public static class Usage
         var services = app.Services;
         var threadPool = services.GetService<ThreadPool.ThreadPool>()!;
         var scheduler = services.GetService<Scheduler>()!;
-        var mapper = services.GetService<IJobMapper>()!;
         var storage = services.GetService<IStorage>()!;
         
-        Jobs.SetJobMapper(mapper);
+        // TODO move to the AddSimpleScheduler!
         Jobs.SetStorage(storage);
         
         threadPool.Run();

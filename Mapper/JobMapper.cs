@@ -4,18 +4,39 @@ namespace SimpleScheduler.Mapper;
 
 public class JobMapper : IJobMapper
 {
-    private readonly Dictionary<string, Func<Task>> _map = new();
+    private readonly IServiceScopeFactory _scopeFactory;
     
-    /// <inheritdoc />
-    public void AddJob(Func<Task> job, string key)
+    /// <summary>
+    /// .Ctor
+    /// </summary>
+    public JobMapper(IServiceScopeFactory scopeFactory)
     {
-        _map.Add(key, job);
+        _scopeFactory = scopeFactory;
     }
-
+    
     public IEnumerable<ExecutionWithJob> GetTaskForExecutions(IEnumerable<Execution> executions)
     {
-        var result = executions
-            .Select(e => new ExecutionWithJob(e, _map.GetValueOrDefault(e.Job.Key)));
+        var result = new List<ExecutionWithJob>();
+        foreach (var execution in executions)
+        {
+            var typeName = execution.Job.Type;
+            var methodName = execution.Job.MethodName;
+
+            using var scope = _scopeFactory.CreateScope();
+            var type = Type.GetType(typeName);
+            
+            var service = scope.ServiceProvider.GetService(type!);
+            var method = service?.GetType().GetMethod(methodName);
+
+            if (method == null)
+            {
+                throw new NullReferenceException($"Could not find method {methodName} in type {typeName}.");
+            }
+            
+            var executionWithJob = new ExecutionWithJob(execution, method, service);
+            result.Add(executionWithJob);
+        }
+        
         return result;
     }
 }

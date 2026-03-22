@@ -5,16 +5,20 @@ public class Job : DoId
     /// <summary>
     /// Ctor
     /// </summary>
-    public Job(string key, TimeSpan? recurrence = null, TimeSpan? delay = null)
+    public Job(string type, string methodName, string? key = null, TimeSpan? recurrence = null, TimeSpan? delay = null)
     {
-        Key = key;
+        Key = key ?? methodName;
         Recurrence = recurrence;
         NextExecutionTime = DateTime.UtcNow.Add(delay ?? TimeSpan.Zero);
+        Type = type;
+        MethodName = methodName;
     }
 
     public Job()
     {
         Key = "";
+        MethodName = "";
+        Type = "";
     }
     
     /// <summary>
@@ -37,6 +41,16 @@ public class Job : DoId
     /// All executions of the job.
     /// </summary>
     public List<Execution> Executions { get; set; } = [];
+    
+    /// <summary>
+    /// Type of the class in the job.
+    /// </summary>
+    public string Type { get; set; }
+    
+    /// <summary>
+    /// Method name of the class for which is job created.
+    /// </summary>
+    public string MethodName { get; set; }
     
     /// <summary>
     /// Moves execution time for the recurrent job.
