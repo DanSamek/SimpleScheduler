@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Threading.Channels;
 
 namespace SimpleScheduler.ThreadPool;
@@ -34,9 +35,9 @@ internal class Worker
                 await job;
                 await scheduler.OnEnded(executionId);
             }
-            catch (Exception ex)
+            catch (TargetInvocationException ex)
             {
-                await scheduler.OnException(executionId, ex);
+                await scheduler.OnException(executionId, ex.InnerException);
             }
         }
     }

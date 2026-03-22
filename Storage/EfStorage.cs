@@ -113,6 +113,7 @@ public class EfStorage<TDbContext> : IStorage
 
             execution.State = ExecutionState.Failed;
             execution.Error = errorMessage;
+            execution.Ended = DateTime.UtcNow;
 
             context.Update(execution);
             await context.SaveChangesAsync();

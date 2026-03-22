@@ -73,9 +73,9 @@ public class Scheduler
         await _storage.UpdateExecutionState(executionId, ExecutionState.Ended);
     }
 
-    public async Task OnException(int executionId, Exception exception)
+    public async Task OnException(int executionId, Exception? exception)
     {
-        await _storage.SetExecutionFailedState(executionId, exception.StackTrace ?? string.Empty);
+        await _storage.SetExecutionFailedState(executionId, $"{exception?.Message}\n{exception?.StackTrace}");
     }
     
     /// <summary>
