@@ -203,6 +203,21 @@ public class EfStorage<TDbContext> : IStorage
         return await WithContext(context => Task.FromResult((int)double.Ceiling(context.Set<Execution>().Count() * 1.0 / PAGE_SIZE)));
     }
 
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Execution>> NotEndedExecutions()
+    {
+        return await WithContext(context =>
+        {
+            var result = context.Set<Execution>().Where(e =>
+                e.State == ExecutionState.Created ||
+                e.State == ExecutionState.Queued ||
+                e.State == ExecutionState.Running)
+                .ToArray();
+            
+            return Task.FromResult(result);
+        });
+    }
+
     private async Task<T> WithContext<T>(Func<TDbContext, Task<T>> action)
     {
         using var scope = _scopeFactory.CreateScope();

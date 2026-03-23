@@ -56,4 +56,9 @@ public interface IStorage
     /// Returns total number of pages for executions.
     /// </summary>
     Task<int> TotalExecutionPages();
+
+    /// <summary>
+    /// Returns all not ended executions -- that should be re-run on the threadpool.
+    /// </summary>
+    Task<IReadOnlyList<Execution>> NotEndedExecutions();
 }

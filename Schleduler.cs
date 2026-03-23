@@ -33,6 +33,9 @@ public class Scheduler
 
     private async Task Loop()
     {
+        // Application could be stopped when some tasks are in the queue.
+        await RestoreState();
+        
         while (true)
         {
             try
@@ -56,6 +59,23 @@ public class Scheduler
                 Console.WriteLine(e);
             }
         }
+    }
+
+    private async Task RestoreState()
+    {
+        // TODO test it with not inmemory-storage!
+        var notEndedExecutions = await _storage.NotEndedExecutions();
+        notEndedExecutions = notEndedExecutions
+            .OrderByDescending(e => e.State)
+            .ThenBy(e => e.Created)
+            .ToList();
+        
+        var executionsWithJobs = _jobMapper.GetTaskForExecutions(notEndedExecutions);
+        foreach (var execution in executionsWithJobs)
+        {
+            await Enqueue(execution);
+        }
+
     }
     
     private async Task OnEnqueued(int executionId)

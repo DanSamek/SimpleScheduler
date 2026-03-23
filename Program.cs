@@ -38,7 +38,7 @@ class Test
 
     public Task RunException()
     {
-        throw new Exception();
+        throw new NullReferenceException();
     }
 
     public async Task LongRunningJob()
