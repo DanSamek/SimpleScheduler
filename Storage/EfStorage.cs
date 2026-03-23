@@ -223,7 +223,28 @@ public class EfStorage<TDbContext> : IStorage
             return Task.FromResult(result);
         });
     }
-
+    
+    /// <inheritdoc />
+    public async Task<Job?> JobById(int id)
+    {
+        return await WithContext(context =>
+        {
+            var job = context.Set<Job>()
+                .AsNoTracking()
+                .FirstOrDefault(e => e.Id == id);
+            
+            var executions = context.Set<Execution>()
+                .AsNoTracking()
+                .Where(e => e.Job != null && e.Job.Id == id)
+                .OrderByDescending(e => e.Created)
+                .Take(PAGE_SIZE)
+                .ToList();
+            
+            job?.Executions = executions;
+            return Task.FromResult(job);
+        });
+    }
+    
     private async Task<T> WithContext<T>(Func<TDbContext, Task<T>> action)
     {
         using var scope = _scopeFactory.CreateScope();

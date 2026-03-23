@@ -19,6 +19,11 @@ public class JobMapper : IJobMapper
         var result = new List<ExecutionWithJob>();
         foreach (var execution in executions)
         {
+            if (execution.Job == null)
+            {
+                throw new NullReferenceException($"Job is null - not included.");
+            }
+            
             var typeName = execution.Job.Type;
             var methodName = execution.Job.MethodName;
 

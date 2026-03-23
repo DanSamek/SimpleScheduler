@@ -8,7 +8,7 @@ public class Execution : DoId, IDto<ExecutionDto>
     /// <summary>
     /// Job that is executed.
     /// </summary>
-    public required Job Job { get; set; }
+    public Job? Job { get; set; }
     
     /// <summary>
     /// State of the job execution.
@@ -36,12 +36,14 @@ public class Execution : DoId, IDto<ExecutionDto>
     public DateTime? Ended { get; set; } 
     
     /// <inheritdoc /> 
-    public ExecutionDto ToDto()
+    public ExecutionDto? ToDto(int recursionDepth)
     {
+        if (recursionDepth == 0) return null;
+        
         const string NOT_STARTED = "Not started";
         const string NOT_ENDED = "Not ended";
         
-        return new ExecutionDto(Id, Job.Key, State.ToString(),
-            Started?.ToString(CultureInfo.InvariantCulture) ?? NOT_STARTED, Ended?.ToString(CultureInfo.InvariantCulture) ?? NOT_ENDED, Error, Job.ToDto());
+        return new ExecutionDto(Id, Job?.Key, State.ToString(),
+            Started?.ToString(CultureInfo.InvariantCulture) ?? NOT_STARTED, Ended?.ToString(CultureInfo.InvariantCulture) ?? NOT_ENDED, Error, Job?.ToDto(recursionDepth - 1));
     }
 }

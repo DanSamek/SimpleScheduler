@@ -35,8 +35,8 @@ public class SimpleSchedulerController : Controller
         var model = new Executions
         {
             ExecutionsList = result
-                .Select(e => e.ToDto())
-                .ToList(),
+                .Select(e => e.ToDto(2))
+                .ToList()!,
             TotalPages = totalPages,
             PageIndex = pageId ?? 0,
             TotalExecutions = totalExecutions
@@ -55,7 +55,7 @@ public class SimpleSchedulerController : Controller
         
         var model = new Execution
         {
-            ExecutionDto = execution.ToDto()
+            ExecutionDto = execution.ToDto(2)!
         };
         return View(model);
     }
@@ -66,10 +66,27 @@ public class SimpleSchedulerController : Controller
         var jobs = await _storage.AllJobs();
         var model = new SimpleScheduler.Jobs
         {
-            JobItems = jobs.Select(e => e.ToDto()).ToList()
+            JobItems = jobs.Select(e => e.ToDto(2)).ToList()!
         };
         return View(model);
     }
+
+    [HttpGet("/simple-scheduler/jobs/{id:int}")]
+    public async Task<IActionResult> Job(int id)
+    {
+        var job = await _storage.JobById(id);
+        if (job == null)
+        {
+            return NotFound();
+        }
+        
+        var model = new Job
+        {
+            JobDto = job.ToDto(2)!
+        };
+        return View(model);
+    }   
+    
     [HttpPost("/simple-scheduler/jobs/schedule/{id:int}")]
     public async Task<IActionResult> Schedule(int id)
     {

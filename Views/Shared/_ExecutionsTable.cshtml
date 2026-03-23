@@ -1,0 +1,36 @@
+@model List<SimpleScheduler.Hub.ExecutionDto>
+
+@{
+    var shouldRenderJobKey = Model.Any(e => e.Job != null);
+}
+
+<table class="table is-striped jobs container">
+    <thead>
+    <tr>
+        @if (shouldRenderJobKey)
+        {
+            <th>Job key</th>
+        }
+        <th>State</th>
+        <th>Started</th>
+        <th>Ended</th>
+        <th>Detail</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    @foreach (var info in Model)
+    {
+        <tr id="job-@info.Id">
+            @if (shouldRenderJobKey)
+            {
+                <td class="key">@info.Key</td>
+            }
+            <td class="state"><span class="tag @info.State">@info.State</span></td>
+            <td class="start-time">@info.Started</td>
+            <td class="end-time">@info.Ended</td>
+            <td class="detail"><a target="_blank" href="/simple-scheduler/executions/@info.Id">Click</a></td>
+        </tr>
+    }
+    </tbody>
+</table>

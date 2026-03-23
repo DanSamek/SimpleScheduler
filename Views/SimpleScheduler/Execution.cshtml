@@ -6,7 +6,7 @@
     var job = Model.ExecutionDto.Job;
 
     var additionalCssClass = execution.State == nameof(ExecutionState.Running) ? "" : "is-hidden";
-    var title = $"{job.Type}.{job.MethodName}";
+    var title = $"{job!.Type}.{job.MethodName}";
     Layout = "_Layout";
 }
 

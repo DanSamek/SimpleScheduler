@@ -17,6 +17,6 @@ public class SchedulerHubNotifier
 
     public async Task NotifyClients(Execution info)
     {
-        await _hubContext.Clients.All.SendAsync("ExecutionUpdate", info.ToDto());
+        await _hubContext.Clients.All.SendAsync("ExecutionUpdate", info.ToDto(2));
     }
 }

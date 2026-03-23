@@ -66,4 +66,9 @@ public interface IStorage
     /// Returns all not ended executions -- that should be re-run on the threadpool.
     /// </summary>
     Task<IReadOnlyList<Execution>> NotEndedExecutions();
+
+    /// <summary>
+    /// Returns job by an id.
+    /// </summary>
+    Task<Job?> JobById(int id);
 }
