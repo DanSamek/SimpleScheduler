@@ -202,6 +202,12 @@ public class EfStorage<TDbContext> : IStorage
     {
         return await WithContext(context => Task.FromResult((int)double.Ceiling(context.Set<Execution>().Count() * 1.0 / PAGE_SIZE)));
     }
+    
+    /// <inheritdoc />
+    public async Task<int> TotalExecutions()
+    {
+        return await WithContext(context => Task.FromResult(context.Set<Execution>().Count()));
+    }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<Execution>> NotEndedExecutions()

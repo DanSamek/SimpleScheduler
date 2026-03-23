@@ -31,13 +31,15 @@ public class SimpleSchedulerController : Controller
     {
         var result = await _storage.ExecutionsPage(pageId ?? 0);
         var totalPages = await _storage.TotalExecutionPages();
+        var totalExecutions = await _storage.TotalExecutions();
         var model = new Executions
         {
             ExecutionsList = result
                 .Select(e => e.ToDto())
                 .ToList(),
             TotalPages = totalPages,
-            PageIndex = pageId ?? 0
+            PageIndex = pageId ?? 0,
+            TotalExecutions = totalExecutions
         };
         return View(model);
     }
