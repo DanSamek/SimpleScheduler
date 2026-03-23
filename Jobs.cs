@@ -34,9 +34,9 @@ public static class Jobs
 
     private static void AddJob<T>(Expression<Func<T, Task>> job, TimeSpan? recurrence = null, TimeSpan? delay = null, string? key = null)
     {
-        if (job.Body is not MethodCallExpression methodCall)
+        if (job.Body is not MethodCallExpression methodCall || methodCall.Arguments.Count > 0)
         {
-            throw new NotSupportedException("Expression is not supported, only method call is supported.");
+            throw new NotSupportedException("Expression is not supported, only lambda method call is supported.");
         }
         var fullName = typeof(T).FullName;
         if (fullName == null)
@@ -45,7 +45,7 @@ public static class Jobs
         }
         
         var methodName = methodCall.Method.Name;
-        var instance = new Job(fullName, methodName,key, recurrence, delay);
+        var instance = new Job(fullName, methodName, key, recurrence, delay);
         _storage.AddJob(instance);
     }
 }

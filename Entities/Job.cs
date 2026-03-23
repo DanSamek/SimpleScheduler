@@ -10,7 +10,7 @@ public class Job : DoId, IDto<JobDto>
     /// </summary>
     public Job(string type, string methodName, string? key = null, TimeSpan? recurrence = null, TimeSpan? delay = null)
     {
-        Key = key ?? methodName;
+        Key = key ?? $"{type}.{methodName}";
         Recurrence = recurrence;
         NextExecutionTime = DateTime.UtcNow.Add(delay ?? TimeSpan.Zero);
         Type = type;
@@ -36,7 +36,6 @@ public class Job : DoId, IDto<JobDto>
     
     /// <summary>
     /// Next execution time of the job.
-    /// TODO somehow handle UI stuff -- set NextExecutionTime time to "NEVER" value?
     /// </summary>
     public DateTime NextExecutionTime { get; set; }
 
@@ -69,11 +68,11 @@ public class Job : DoId, IDto<JobDto>
     /// <summary>
     /// If the job is recurrent.
     /// </summary>
-    internal bool IsRecurrent() => Recurrence.HasValue;
+    private bool IsRecurrent() => Recurrence.HasValue;
     
     /// <inheritdoc /> 
     public JobDto ToDto()
     {
-        return new JobDto(Id, Key, Type, MethodName, IsRecurrent(), IsRecurrent() ? NextExecutionTime.ToString(CultureInfo.InvariantCulture) : "NO-TIME");
+        return new JobDto(Id, Key, Type, MethodName, IsRecurrent(), IsRecurrent() ? NextExecutionTime.ToString(CultureInfo.InvariantCulture) : "No next execution");
     }
 }

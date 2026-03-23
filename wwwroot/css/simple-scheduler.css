@@ -12,3 +12,9 @@
     background-color:var(--bulma-danger);
     color: var(--bulma-danger-invert);
 }
+
+.grid.execution-header{
+    justify-content: space-between;
+    align-items: center;
+    grid-template-columns: auto 50px;
+}

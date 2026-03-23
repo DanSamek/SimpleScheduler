@@ -37,7 +37,10 @@
 </nav>
 
 <div class="container">
-    <h1 class="title">@ViewData["Title"]</h1>
+    @if (ViewData.TryGetValue("Title", out var title))
+    {
+        <h1 class="title is-4">@title</h1>   
+    }
     @RenderBody()
 </div>
 </body>

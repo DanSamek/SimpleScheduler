@@ -5,40 +5,38 @@ connection.start().then(function () {
     return console.error(err.toString());
 });
 
-/*
-connection.on("ExecutionUpdate", function (dto) {
-    let execution = document.querySelector(`#job-${dto.id}`);
-    if (execution == null){
-        const parent = document.querySelector(".jobs tbody");
-        const unknownJob = parent.querySelector("#job-unknown");
-        execution = unknownJob.cloneNode(true);
-        
-        execution.style.removeProperty('display');
-        execution.id = `job-${dto.id}`;
-        parent.appendChild(execution);
-    }
 
-    execution.querySelector(".key").innerText = dto.key;
-    const tag = execution.querySelector(".state").querySelector(".tag");
-    tag.innerText = dto.state;
-    tag.removeAttribute("class");
-    tag.classList.add("tag");
-    tag.classList.add(dto.state);
-    execution.querySelector(".start-time").innerText = dto.started;
-    execution.querySelector(".end-time").innerText = dto.ended;
-    execution.querySelector(".detail").innerHTML =`<a href=\"/simple-scheduler/executions/${dto.id}\">Click</a></td>`
+// TODO move for only pages where its needed.
+connection.on("ExecutionUpdate", function (dto) {
+    console.log(dto);
+    let currentExecution = document.querySelector(`.exec-${dto.id}`)
+    if (currentExecution == null) {
+        return;
+    }
+    
+    let progressBar = document.querySelector(`.progress-bar`);
+    if (dto.state !== "Running") {
+        progressBar.classList.add("is-hidden");
+    } else {
+        progressBar.classList.remove("is-hidden");
+    }
+    
+    let info = document.querySelector(".update-info");
+    info.innerHTML = `
+        <p>State: ${dto.state}</p>
+        <p>Started: ${dto.started}</p>
+        <p>Ended: ${dto.ended}</p> 
+    `;
 });
-*/
+
 async function schedule(jobId){
     const result = await fetch(`/simple-scheduler/jobs/schedule/${jobId}`, {
         method: "POST"
     });
-    console.log(result);
-    // TODO alert (?)
-    if (result.ok){
+    if (result.ok) {
         
     }
-    else{   
+    else{
         
     }
 }

@@ -1,16 +1,40 @@
+@using SimpleScheduler.Entities
 @model SimpleScheduler.Views.SimpleScheduler.Execution
 
 @{
-    ViewData["Title"] = Model.ExecutionDto.Key;
+    var execution = Model.ExecutionDto;
+    var job = Model.ExecutionDto.Job;
+
+    var additionalCssClass = execution.State == nameof(ExecutionState.Running) ? "" : "is-hidden";
+    var title = $"{job.Type}.{job.MethodName}";
     Layout = "_Layout";
 }
 
-@if (Model.ExecutionDto.Error != null)
-{
-    <div class="content">
-        <p>Error</p>
-        <code>
-            @Model.ExecutionDto.Error
-        </code>
+<div class="grid execution-header">
+    <div class="container">
+        <h2 class="title is-4">@title</h2>
     </div>
-}
+    <div class="container progress-bar @additionalCssClass">
+        <progress class="progress is-small is-primary" max="100">5%</progress>
+    </div>
+</div>
+
+@*NOTE: this is also in simple-scheduler.js*@
+<p class="exec-@execution.Id">Id: @execution.Id</p>
+<p>Key: @execution.Key</p>
+
+<div class="update-info">
+    <p>State: @execution.State</p>
+    <p>Started: @execution.Started</p>
+    <p>Ended: @execution.Ended</p>
+
+    @if (execution.Error != null)
+    {
+        <div class="content">
+            <p>Error</p>
+            <code>
+                @execution.Error
+            </code>
+        </div>
+    }       
+</div>
