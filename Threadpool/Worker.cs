@@ -26,7 +26,7 @@ internal class Worker
             try
             {
                 await scheduler.OnRunning(executionId);
-                var job = (Task?)executionWithJob.MethodInfo.Invoke(executionWithJob.Object, null);
+                var job = (Task?)executionWithJob.MethodInfo.Invoke(executionWithJob.Object, executionWithJob.Arguments);
                 if (job == null)
                 {
                     throw new NullReferenceException("Job is null");

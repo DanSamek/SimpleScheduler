@@ -71,7 +71,7 @@ public static class Jobs
         {
             case ConstantExpression constantExpression:
                 instance.Type = constantExpression.Type.FullName!;
-                instance.Value = constantExpression.Value;
+                instance.Value = JsonSerializer.Serialize(constantExpression.Value);
                 return instance;
             case NewExpression newExpression:
                 instance.Type = newExpression.Type.FullName!;

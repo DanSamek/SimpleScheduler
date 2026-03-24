@@ -20,12 +20,13 @@ app.UseSimpleScheduler();
 
 
 Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.EntityB(new Test.EntityA(1, 2, 3), 2)));
-Jobs.AddInstantJob<Test>(t => t.WithArguments(2, 3));
-
+//Jobs.AddInstantJob<Test>(t => t.WithArguments(2, 3));
+/*
 Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
 Jobs.AddRecurringJob<Test>(t => t.Run2(), TimeSpan.FromSeconds(10));
 Jobs.AddRecurringJob<Test>(t => t.RunException(), TimeSpan.FromSeconds(10));
 Jobs.AddInstantJob<Test>(t => t.LongRunningJob());
+*/
 app.Run();
 
 class Test

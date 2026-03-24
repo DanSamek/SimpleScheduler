@@ -38,7 +38,8 @@ public class JobMapper : IJobMapper
                 throw new NullReferenceException($"Could not find method {methodName} in type {typeName}.");
             }
             
-            var executionWithJob = new ExecutionWithJob(execution, method, service);
+            var arguments = execution.Job.CreateArguments();
+            var executionWithJob = new ExecutionWithJob(execution, method, service, arguments);
             result.Add(executionWithJob);
         }
         

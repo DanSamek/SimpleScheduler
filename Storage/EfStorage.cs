@@ -46,6 +46,7 @@ public class EfStorage<TDbContext> : IStorage
             var now = DateTime.UtcNow;
             var jobsToRun = jobs
                 .Include(j => j.Arguments)
+                .ThenInclude(a => a.Arguments)
                 .Where(j => j.NextExecutionTime <= now && (j.Recurrence != null || j.Executions.Count == 0))
                 .ToArray();
         
