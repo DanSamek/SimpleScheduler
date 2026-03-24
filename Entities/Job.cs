@@ -8,13 +8,14 @@ public class Job : DoId, IDto<JobDto>
     /// <summary>
     /// Ctor
     /// </summary>
-    public Job(string type, string methodName, string? key = null, TimeSpan? recurrence = null, TimeSpan? delay = null)
+    public Job(string type, string methodName, List<Argument> arguments, string? key = null, TimeSpan? recurrence = null, TimeSpan? delay = null)
     {
         Key = key ?? $"{type}.{methodName}";
         Recurrence = recurrence;
         NextExecutionTime = DateTime.UtcNow.Add(delay ?? TimeSpan.Zero);
         Type = type;
         MethodName = methodName;
+        Arguments = arguments;
     }
 
     public Job()
@@ -53,6 +54,11 @@ public class Job : DoId, IDto<JobDto>
     /// Method name of the class for which is job created.
     /// </summary>
     public string MethodName { get; set; }
+
+    /// <summary>
+    /// Arguments of the job.
+    /// </summary>
+    public List<Argument> Arguments { get; set; } = [];
     
     /// <summary>
     /// Moves execution time for the recurrent job.

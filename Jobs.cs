@@ -1,4 +1,6 @@
 using System.Linq.Expressions;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using SimpleScheduler.Entities;
 using SimpleScheduler.Storage;
 
@@ -34,7 +36,7 @@ public static class Jobs
 
     private static void AddJob<T>(Expression<Func<T, Task>> job, TimeSpan? recurrence = null, TimeSpan? delay = null, string? key = null)
     {
-        if (job.Body is not MethodCallExpression methodCall || methodCall.Arguments.Count > 0)
+        if (job.Body is not MethodCallExpression methodCall)
         {
             throw new NotSupportedException("Expression is not supported, only lambda method call is supported.");
         }
@@ -43,9 +45,44 @@ public static class Jobs
         {
             throw new NullReferenceException("Type name is null");
         }
+
+        var arguments = ParseArguments(methodCall.Arguments)
+            .Select(a => a.Flatten())
+            .ToList();
         
         var methodName = methodCall.Method.Name;
-        var instance = new Job(fullName, methodName, key, recurrence, delay);
+        var instance = new Job(fullName, methodName, arguments, key, recurrence, delay);
         _storage.AddJob(instance);
     }
+
+    private static List<Argument> ParseArguments(IEnumerable<Expression> arguments)
+    {
+        var result = arguments
+            .Select(ParseArgument)
+            .ToList();
+        
+        return result;
+    }
+
+    private static Argument ParseArgument(Expression expression)
+    {
+        var instance = new Argument();
+        switch (expression)
+        {
+            case ConstantExpression constantExpression:
+                instance.Type = constantExpression.Type.FullName!;
+                instance.Value = constantExpression.Value;
+                return instance;
+            case NewExpression newExpression:
+                instance.Type = newExpression.Type.FullName!;
+                instance.Arguments = newExpression.Arguments
+                    .Select(ParseArgument)
+                    .ToList();
+                instance.ArgumentCount = instance.Arguments.Count;
+                return instance;
+            default:
+                throw new NotSupportedException("Expression is not supported by simple scheduler.");
+        }
+    }
+    
 }

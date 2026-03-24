@@ -41,11 +41,11 @@ public class EfStorage<TDbContext> : IStorage
     {
         return await WithContext(async context =>
         {
-
             var jobs = context.Set<Job>();
         
             var now = DateTime.UtcNow;
             var jobsToRun = jobs
+                .Include(j => j.Arguments)
                 .Where(j => j.NextExecutionTime <= now && (j.Recurrence != null || j.Executions.Count == 0))
                 .ToArray();
         
@@ -55,7 +55,7 @@ public class EfStorage<TDbContext> : IStorage
             }
         
             var executions = jobsToRun
-                .Select(job => new Execution { Job = job})
+                .Select(job => new Execution { Job = job } )
                 .ToList();
 
             context.Set<Execution>().AddRange(executions);

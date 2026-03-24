@@ -21,7 +21,7 @@ public class JobMapper : IJobMapper
         {
             if (execution.Job == null)
             {
-                throw new NullReferenceException($"Job is null - not included.");
+                throw new NullReferenceException("Job is null - not included.");
             }
             
             var typeName = execution.Job.Type;

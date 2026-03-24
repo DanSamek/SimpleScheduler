@@ -18,10 +18,10 @@ var app = builder.Build();
 
 app.UseSimpleScheduler();
 
-/* TODO !
-Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.TestDto(1, 2)));
+
+Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.EntityB(new Test.EntityA(1, 2, 3), 2)));
 Jobs.AddInstantJob<Test>(t => t.WithArguments(2, 3));
-*/
+
 Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
 Jobs.AddRecurringJob<Test>(t => t.Run2(), TimeSpan.FromSeconds(10));
 Jobs.AddRecurringJob<Test>(t => t.RunException(), TimeSpan.FromSeconds(10));
@@ -54,11 +54,12 @@ class Test
     {
         await Task.Delay(TimeSpan.FromSeconds(a + b));
     }
-    
-    public record TestDto(int a, int b);
 
-    public async Task WithComplexArgument(TestDto test)
+    public record EntityA(int a, int b, int c);
+    public record EntityB(EntityA t2d, int b);
+
+    public async Task WithComplexArgument(EntityB test)
     {
-        await Task.Delay(TimeSpan.FromSeconds(test.a + test.b));
+        await Task.Delay(TimeSpan.FromSeconds(test.t2d.a + test.b));
     }
 }
