@@ -46,12 +46,14 @@ public static class Jobs
             throw new NullReferenceException("Type name is null");
         }
 
+        var call = $"{fullName}.{job.Body.ToString().Split(".").Last()});";
+        
         var arguments = ParseArguments(methodCall.Arguments)
             .Select(a => a.Flatten())
             .ToList();
         
         var methodName = methodCall.Method.Name;
-        var instance = new Job(fullName, methodName, arguments, key, recurrence, delay);
+        var instance = new Job(fullName, methodName, arguments, call, key, recurrence, delay);
         _storage.AddJob(instance);
     }
 

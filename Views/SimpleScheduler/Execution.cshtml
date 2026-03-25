@@ -20,21 +20,43 @@
 </div>
 
 @*NOTE: this is also in simple-scheduler.js*@
-<p class="exec-@execution.Id">Id: @execution.Id</p>
-<p>Key: @execution.Key</p>
+<div class="grid">
+    <div class="container">
+        <p class="exec-@execution.Id">Id: @execution.Id</p>
+        <p>Key: @execution.Key</p>
 
-<div class="update-info">
-    <p>State: @execution.State</p>
-    <p>Started: @execution.Started</p>
-    <p>Ended: @execution.Ended</p>
+        <div class="update-info">
+            <p>State: @execution.State</p>
+            <p>Started: @execution.Started</p>
+            <p>Ended: @execution.Ended</p>
 
-    @if (execution.Error != null)
-    {
-        <div class="content">
-            <p>Error</p>
-            <code>
-                @execution.Error
-            </code>
+            @if (execution.Error != null)
+            {
+                <div class="content">
+                    <p>Error</p>
+                    <code>
+                        @execution.Error
+                    </code>
+                </div>
+            }       
         </div>
-    }       
+    </div>
+    
+    <div class="container">
+        <div class="call" style="height: 100%"></div>
+    </div>
 </div>
+
+
+<script>
+    require.config({ paths: { 'vs': '/js/min/vs' }});
+    require(['vs/editor/editor.main'], function() {
+        monaco.editor.create(document.querySelector(".call"),{
+            value: '@execution.Job?.Call',
+            language: 'csharp',
+            automaticLayout: true,
+            theme: 'vs-dark',
+            readOnly: false
+        });
+    });
+</script>

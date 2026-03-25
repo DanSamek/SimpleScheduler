@@ -8,7 +8,7 @@ public class Job : DoId, IDto<JobDto>
     /// <summary>
     /// Ctor
     /// </summary>
-    public Job(string type, string methodName, List<Argument> arguments, string? key = null, TimeSpan? recurrence = null, TimeSpan? delay = null)
+    public Job(string type, string methodName, List<Argument> arguments, string call, string? key = null, TimeSpan? recurrence = null, TimeSpan? delay = null)
     {
         Key = key ?? $"{type}.{methodName}";
         Recurrence = recurrence;
@@ -16,6 +16,7 @@ public class Job : DoId, IDto<JobDto>
         Type = type;
         MethodName = methodName;
         Arguments = arguments;
+        Call = call;
     }
 
     public Job()
@@ -23,12 +24,18 @@ public class Job : DoId, IDto<JobDto>
         Key = "";
         MethodName = "";
         Type = "";
+        Call = "";
     }
     
     /// <summary>
     /// Key of the job.
     /// </summary>
     public string Key { get; set; }
+    
+    /// <summary>
+    /// How is lambda called - used for UI.
+    /// </summary>
+    public string Call { get; set; }
     
     /// <summary>
     /// Recurrence time for the job.
@@ -84,7 +91,7 @@ public class Job : DoId, IDto<JobDto>
         return new JobDto(Id, Key, Type,
             MethodName, IsRecurrent(), 
             IsRecurrent() ? NextExecutionTime.ToString(CultureInfo.InvariantCulture) : "No next execution",
-            Executions.Select(e => e.ToDto(recursionDepth - 1)).ToList());
+            Executions.Select(e => e.ToDto(recursionDepth - 1)).ToList(), Call);
     }
 
     internal object[] CreateArguments()

@@ -192,6 +192,8 @@ public class EfStorage<TDbContext> : IStorage
             var execution = context.Set<Execution>()
                 .AsNoTracking()
                 .Include(e => e.Job)
+                .ThenInclude(j => j!.Arguments)
+                .ThenInclude(a => a.Arguments)
                 .FirstOrDefault(j => j.Id == id);
 
             return Task.FromResult(execution);

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using SimpleScheduler;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,8 +19,9 @@ var app = builder.Build();
 
 app.UseSimpleScheduler();
 
-
+//Jobs.AddInstantJob<Test>(t => t.WithDateTime(new DateTime(1,2,3)));
 Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.EntityB(new Test.EntityA(1, 2, 3), 2)));
+//Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.EntityB(new Test.EntityA(1, 2, 3), 2)));
 //Jobs.AddInstantJob<Test>(t => t.WithArguments(2, 3));
 /*
 Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
@@ -54,6 +56,11 @@ class Test
     public async Task WithArguments(int a, int b)
     {
         await Task.Delay(TimeSpan.FromSeconds(a + b));
+    }
+
+    public async Task WithDateTime(DateTime dt)
+    {
+        await Task.CompletedTask;
     }
 
     public record EntityA(int a, int b, int c);

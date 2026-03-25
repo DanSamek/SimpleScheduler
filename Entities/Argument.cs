@@ -84,6 +84,7 @@ public class Argument : DoId
         return result;
     }
 
+    // TODO clean this and optimize (?)
     private object CreateInstanceRec(Argument argument)
     {
         var argumentType = System.Type.GetType(argument.Type)!;
@@ -117,24 +118,24 @@ public class Argument : DoId
 
     private static ConstructorInfo? GetSuitableConstructor(Type argumentType, List<Type> instanceArguments)
     {
-        // TODO clone instance arguments !
         ConstructorInfo? suitableConstructor = null;
         foreach (var constructor in argumentType.GetConstructors())
         {
             var parameters = constructor.GetParameters();
             if (parameters.Length != instanceArguments.Count) continue;
-
+            
+            var instanceArgumentsCopy = new List<Type>(instanceArguments);
             var validConstructor = true;
             foreach (var parameter in parameters)
             {
-                var foundType = instanceArguments.Find(ia => ia.FullName == parameter.ParameterType.FullName);
+                var foundType = instanceArgumentsCopy.Find(ia => ia.FullName == parameter.ParameterType.FullName);
                 if (foundType == null)
                 {
                     validConstructor = false;
                     break;  
                 }
 
-                instanceArguments.Remove(foundType);
+                instanceArgumentsCopy.Remove(foundType);
             }
 
             if (!validConstructor) continue;
