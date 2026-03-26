@@ -1,9 +1,8 @@
+@using SimpleScheduler
 @model SimpleScheduler.Views.SimpleScheduler.Job
 
 @{
-    
     var job = Model.JobDto;
-    var executions = Model.JobDto.Executions;
     
     Layout = "_Layout";
     ViewData["Title"] = $"{job.Type}.{job.MethodName}";
@@ -15,8 +14,10 @@
 <p>Next execution time: @job.NextExecutionTime</p>
 <p>Recurrent: @job.IsRecurrent</p>
 
-@* TODO enable run*@
-<p>Last executions (@executions?.Count)</p>
+@* TODO maybe enable different params *@
+<button class="button" onclick="schedule(@job.Id)">Schedule job</button>
+
+<p>Last executions (max @(Constants.PAGE_SIZE))</p>
 @{
     await Html.RenderPartialAsync("_ExecutionsTable", Model.JobDto.Executions);
 }

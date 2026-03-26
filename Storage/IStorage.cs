@@ -45,7 +45,7 @@ public interface IStorage
     /// <summary>
     /// Returns executions for the job id.
     /// </summary>
-    Task<Execution?> GetExecution(int jobId);
+    Task<Execution?> GetExecutionByJobId(int jobId);
 
     /// <summary>
     /// Returns execution by id.

@@ -1,3 +1,4 @@
+@using System.Text.Json
 @using SimpleScheduler.Entities
 @model SimpleScheduler.Views.SimpleScheduler.Execution
 
@@ -7,6 +8,11 @@
 
     var additionalCssClass = execution.State == nameof(ExecutionState.Running) ? "" : "is-hidden";
     var title = $"{job!.Type}.{job.MethodName}";
+    var errorMessage = string.IsNullOrEmpty(execution.Error) ? "" : $"\n// Got an error:\n/* {execution.Error} */";
+    var codeText = "// Executed code\n"
+                   + (execution.Job?.Call ?? "")
+                   + errorMessage;
+    
     Layout = "_Layout";
 }
 
@@ -20,7 +26,7 @@
 </div>
 
 @*NOTE: this is also in simple-scheduler.js*@
-<div class="grid">
+<div class="grid execution-information">
     <div class="container">
         <p class="exec-@execution.Id">Id: @execution.Id</p>
         <p>Key: @execution.Key</p>
@@ -30,15 +36,6 @@
             <p>Started: @execution.Started</p>
             <p>Ended: @execution.Ended</p>
 
-            @if (execution.Error != null)
-            {
-                <div class="content">
-                    <p>Error</p>
-                    <code>
-                        @execution.Error
-                    </code>
-                </div>
-            }       
         </div>
     </div>
     
@@ -47,16 +44,15 @@
     </div>
 </div>
 
-
 <script>
     require.config({ paths: { 'vs': '/js/min/vs' }});
     require(['vs/editor/editor.main'], function() {
         monaco.editor.create(document.querySelector(".call"),{
-            value: '@execution.Job?.Call',
+            value: @Html.Raw(JsonSerializer.Serialize(codeText)),
             language: 'csharp',
             automaticLayout: true,
             theme: 'vs-dark',
-            readOnly: false
+            readOnly: true
         });
     });
 </script>

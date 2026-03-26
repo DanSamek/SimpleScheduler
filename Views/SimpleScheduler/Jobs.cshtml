@@ -5,10 +5,6 @@
     Layout = "_Layout";
 }
 
-<div class="content">
-    <p>*Run button won't affect next execution time</p>
-</div>
-
 <table class="table is-striped jobs container">
     <thead>
     <tr>
@@ -17,9 +13,6 @@
         <th>Method name</th>
         <th>Recurrent</th>
         <th>Next execution time</th>
-        @*TODO, this will be much complex -- with arguments!
-        <th>Run*</th>
-        *@
         <th>Detail</th>
     </tr>
     </thead>
@@ -33,9 +26,6 @@
             <td class="method-name">@job.MethodName</td>
             <td class="is-recurrent">@job.IsRecurrent</td>
             <td class="next-execution-time">@job.NextExecutionTime</td>
-            @* TODO, this will be much complex -- with arguments!
-            <td class="run"><button class="button" onclick="schedule(@job.Id)">Run</button></td>
-            *@
             <td class="detail"><a target="_blank" href="/simple-scheduler/jobs/@job.Id">Click</a></td>
          </tr>
     }

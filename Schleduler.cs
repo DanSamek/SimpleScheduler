@@ -104,7 +104,7 @@ public class Scheduler
     /// <param name="id">Id of the job</param>
     internal async Task<bool> ScheduleJob(int id)
     {
-        var execution = await _storage.GetExecution(id);
+        var execution = await _storage.GetExecutionByJobId(id);
         if (execution == null) return false;
         
         var executionWithJob = _jobMapper.GetTaskForExecutions([execution]).First();

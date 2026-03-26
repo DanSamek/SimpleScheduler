@@ -7,7 +7,6 @@ namespace SimpleScheduler.Storage;
 public class EfStorage<TDbContext> : IStorage
     where TDbContext : DbContext
 {
-    private const int PAGE_SIZE = 32;
     
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly SchedulerHubNotifier _hubNotifier; 
@@ -132,8 +131,8 @@ public class EfStorage<TDbContext> : IStorage
             var executions = context.Set<Execution>()
                 .Include(e => e.Job)
                 .OrderByDescending(e => e.Id)
-                .Skip(pageIndex * PAGE_SIZE)
-                .Take(PAGE_SIZE)
+                .Skip(pageIndex * Constants.PAGE_SIZE)
+                .Take(Constants.PAGE_SIZE)
                 .ToList();
             
             return Task.FromResult(executions);
@@ -168,12 +167,15 @@ public class EfStorage<TDbContext> : IStorage
     }
     
     /// <inheritdoc />
-    public async Task<Execution?> GetExecution(int jobId)
+    public async Task<Execution?> GetExecutionByJobId(int jobId)
     {
         return await WithContext(async context =>
         {
             var job = context.Set<Job>()
+                .Include(j => j.Arguments)
+                .ThenInclude(a => a.Arguments)
                 .FirstOrDefault(j => j.Id == jobId);
+            
             if (job is null) return null;
 
             var execution = new Execution { Job = job };
@@ -203,7 +205,7 @@ public class EfStorage<TDbContext> : IStorage
     /// <inheritdoc />
     public async Task<int> TotalExecutionPages()
     {
-        return await WithContext(context => Task.FromResult((int)double.Ceiling(context.Set<Execution>().Count() * 1.0 / PAGE_SIZE)));
+        return await WithContext(context => Task.FromResult((int)double.Ceiling(context.Set<Execution>().Count() * 1.0 / Constants.PAGE_SIZE)));
     }
     
     /// <inheritdoc />
@@ -240,7 +242,7 @@ public class EfStorage<TDbContext> : IStorage
                 .AsNoTracking()
                 .Where(e => e.Job != null && e.Job.Id == id)
                 .OrderByDescending(e => e.Created)
-                .Take(PAGE_SIZE)
+                .Take(Constants.PAGE_SIZE)
                 .ToList();
             
             job?.Executions = executions;

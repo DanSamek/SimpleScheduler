@@ -18,3 +18,7 @@
     align-items: center;
     grid-template-columns: auto 50px;
 }
+
+.grid.execution-information{
+    grid-template-columns: 33% 66%;
+}

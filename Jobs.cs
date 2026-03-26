@@ -46,7 +46,7 @@ public static class Jobs
             throw new NullReferenceException("Type name is null");
         }
 
-        var call = $"{fullName}.{job.Body.ToString().Split(".").Last()});";
+        var call = $"{fullName}.{job.Body.ToString().Split(".").Last()};";
         
         var arguments = ParseArguments(methodCall.Arguments)
             .Select(a => a.Flatten())
