@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_Layout";
+}
+
+<form action="/simple-scheduler/login" method="post" class="form">
+    <div class="field">
+        <label class="label">Username</label>
+        <div class="control">
+            <input class="input" name="username" type="text">
+        </div>
+    </div>
+    
+    <div class="field">
+        <label class="label">Password</label>
+        <div class="control">
+            <input class="input" name="password" type="password">
+        </div>
+    </div>
+    
+    <p class="control">
+        <button class="button is-primary">
+            Login
+        </button>
+    </p>
+</form>

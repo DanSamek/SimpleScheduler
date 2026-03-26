@@ -6,4 +6,9 @@ public static class Constants
     /// Size of the page size for views.
     /// </summary>
     public const int PAGE_SIZE = 32;
+    
+    /// <summary>
+    /// Cookie of the logged user. 
+    /// </summary>
+    public const string USER_COOKIE = "SIMPLE-SCHEDULER-COOKIE";
 }

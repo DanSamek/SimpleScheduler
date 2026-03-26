@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 using SimpleScheduler;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +9,11 @@ builder.Services.AddSimpleScheduler(options =>
 {
     options.NumberOfThreads = 2;
     options.DbContextType = typeof(SimpleSchedulerContext);
+    options.User = new SimpleSchedulerUser
+    {
+        Username = "user",
+        Password = "12345678"
+    };
 });
 
 // Force to the DI container.

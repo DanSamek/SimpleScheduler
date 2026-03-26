@@ -9,14 +9,40 @@ public class SimpleSchedulerController : Controller
 {
     private readonly IStorage _storage;
     private readonly Scheduler _scheduler;
+    private readonly SimpleSchedulerUser _user;
     
     /// <summary>
     /// .Ctor
     /// </summary>
-    public SimpleSchedulerController(IStorage storage, Scheduler scheduler)
+    public SimpleSchedulerController(IStorage storage, Scheduler scheduler, SimpleSchedulerUser user)
     {
         _storage = storage;
         _scheduler = scheduler;
+        _user = user;
+    }
+
+    [HttpGet("/simple-scheduler/login")]
+    public IActionResult Login()
+    {
+        return View();
+    }
+    
+    [HttpPost("/simple-scheduler/login")]
+    public IActionResult Login([FromForm] string username, [FromForm] string password)
+    {
+        if (_user.Username != username || _user.Password != password)
+        {
+            // TODO error message
+            return View("Login");
+        }
+        
+        // TODO add auth tokens instead of "_user.Username".
+        HttpContext.Response.Cookies.Append(Constants.USER_COOKIE, _user.Username, new CookieOptions
+        {
+            MaxAge = TimeSpan.FromHours(1)
+        });
+        
+        return Redirect("/simple-scheduler");
     }
     
     [HttpGet("/simple-scheduler")]
