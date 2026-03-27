@@ -1,44 +1,52 @@
 using Microsoft.AspNetCore.Mvc;
-using SimpleScheduler.Storage;
+using SimpleScheduler.Services;
 using SimpleScheduler.Views.SimpleScheduler;
 namespace SimpleScheduler.Controllers;
 
 public class SimpleSchedulerController : Controller
 {
-    private readonly IStorage _storage;
+    private readonly IStorage _storage; 
     private readonly Scheduler.Scheduler _scheduler;
     private readonly SimpleSchedulerUser _user;
+    private readonly ITokenService _tokenService;
     
     /// <summary>
     /// .Ctor
     /// </summary>
-    public SimpleSchedulerController(IStorage storage, Scheduler.Scheduler scheduler, SimpleSchedulerUser user)
+    public SimpleSchedulerController(IStorage storage, Scheduler.Scheduler scheduler, SimpleSchedulerUser user, ITokenService tokenService)
     {
         _storage = storage;
         _scheduler = scheduler;
         _user = user;
+        _tokenService = tokenService;
     }
 
     [HttpGet("/simple-scheduler/login")]
     public IActionResult Login()
     {
-        return View();
+        var model = new LoginModel();
+        return View(model);
     }
     
     [HttpPost("/simple-scheduler/login")]
-    public IActionResult Login([FromForm] string username, [FromForm] string password)
+    public async Task<IActionResult> Login([FromForm] string username, [FromForm] string password)
     {
         if (_user.Username != username || _user.Password != password)
         {
-            // TODO error message
-            return View("Login");
+            var model = new  LoginModel
+            {
+                ErrorMessage = "Invalid credentials"
+            };
+            return View("Login", model);
         }
         
-        // TODO add auth tokens instead of "_user.Username".
-        HttpContext.Response.Cookies.Append(Constants.USER_COOKIE, _user.Username, new CookieOptions
+        var value = Guid.NewGuid().ToString();
+        await _tokenService.AddToken(value, Constants.TOKEN_EXPIRATION_TIME);
+        HttpContext.Response.Cookies.Append(Constants.USER_COOKIE, value, new CookieOptions
         {
-            MaxAge = TimeSpan.FromHours(1)
+            MaxAge = Constants.TOKEN_EXPIRATION_TIME
         });
+        await _tokenService.RemoveExpiredTokens();
         
         return Redirect("/simple-scheduler");
     }

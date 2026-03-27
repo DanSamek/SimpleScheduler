@@ -1,3 +1,4 @@
+@model SimpleScheduler.Views.SimpleScheduler.LoginModel
 @{
     ViewData["Title"] = "Login";
     Layout = "_Layout";
@@ -24,3 +25,12 @@
         </button>
     </p>
 </form>
+
+@if(!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <article class="message is-danger">
+        <div class="message-body">
+            @Model.ErrorMessage
+        </div>
+    </article>
+}

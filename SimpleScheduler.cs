@@ -2,7 +2,7 @@ using SimpleScheduler.ContextProvider;
 using SimpleScheduler.Hub;
 using SimpleScheduler.Mapper;
 using SimpleScheduler.Middlewares;
-using SimpleScheduler.Storage;
+using SimpleScheduler.Services;
 
 namespace SimpleScheduler;
 
@@ -30,6 +30,7 @@ public static class SimpleScheduler
             var instance = new DbContextProvider(options.DbContextType!, scopeFactory!);
             return instance;
         });
+        services.AddSingleton<ITokenService, TokenService>();
         
         services
             .AddRazorPages()

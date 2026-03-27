@@ -1,12 +1,17 @@
+using SimpleScheduler.Services;
+
 namespace SimpleScheduler.Middlewares;
 
 public class SimpleSchedulerMiddleware : IMiddleware
 {
-    private readonly SimpleSchedulerUser _user;
+    private readonly ITokenService _tokenService;
     
-    public SimpleSchedulerMiddleware(SimpleSchedulerUser user)
+    /// <summary>
+    /// .Ctor
+    /// </summary>
+    public SimpleSchedulerMiddleware(ITokenService tokenService)
     {
-        _user = user;
+        _tokenService = tokenService;
     }
     
     /// <inheritdoc /> 
@@ -15,7 +20,7 @@ public class SimpleSchedulerMiddleware : IMiddleware
         var isLoginPath = context.Request.Path.Value?.Contains("login") ?? false;
         if (!isLoginPath &&
             (!context.Request.Cookies.TryGetValue(Constants.USER_COOKIE, out var value)
-            || value != _user.Username))
+            || !await _tokenService.ValidateToken(value)))
         {
             context.Response.Redirect("/simple-scheduler/login");
             return;

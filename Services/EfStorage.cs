@@ -3,7 +3,7 @@ using SimpleScheduler.ContextProvider;
 using SimpleScheduler.Entities;
 using SimpleScheduler.Hub;
 
-namespace SimpleScheduler.Storage;
+namespace SimpleScheduler.Services;
 
 public class EfStorage : IStorage
 {

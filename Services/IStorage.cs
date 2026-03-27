@@ -1,6 +1,6 @@
 using SimpleScheduler.Entities;
 
-namespace SimpleScheduler.Storage;
+namespace SimpleScheduler.Services;
 
 /// <summary>
 /// Interface for different kinds of storage implementations (in-memory, db)

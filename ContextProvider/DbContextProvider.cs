@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SimpleScheduler.ContextProvider;
 
+// TODO create somehow args to remove allocations because of lambdas ? 
 public class DbContextProvider
 {
     private readonly Type _dbContextType;

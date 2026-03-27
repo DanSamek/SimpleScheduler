@@ -11,4 +11,10 @@ public static class Constants
     /// Cookie of the logged user. 
     /// </summary>
     public const string USER_COOKIE = "SIMPLE-SCHEDULER-COOKIE";
+    
+    /// <summary>
+    /// Token expiration time.
+    /// </summary>
+    public static readonly TimeSpan TOKEN_EXPIRATION_TIME = TimeSpan.FromHours(1);
+
 }
