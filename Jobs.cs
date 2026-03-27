@@ -20,20 +20,20 @@ public static class Jobs
     /// <summary>
     /// Executes a job once.
     /// </summary>
-    public static void AddInstantJob<T>(Expression<Func<T, Task>> job, TimeSpan? delay = null, string? key = null)
+    public static async Task<int> AddInstantJob<T>(Expression<Func<T, Task>> job, TimeSpan? delay = null, string? key = null)
     {
-        AddJob(job, delay: delay, key: key);
+        return await AddJob(job, delay: delay, key: key);
     }
 
     /// <summary>
     /// Executes a job repeatedly.
     /// </summary>
-    public static void AddRecurringJob<T>(Expression<Func<T, Task>> job, TimeSpan recurrence, TimeSpan? delay = null, string? key = null)
+    public static async Task<int> AddRecurringJob<T>(Expression<Func<T, Task>> job, TimeSpan recurrence, TimeSpan? delay = null, string? key = null)
     {
-        AddJob(job, recurrence, delay, key);
+        return await AddJob(job, recurrence, delay, key);
     }
 
-    private static void AddJob<T>(Expression<Func<T, Task>> job, TimeSpan? recurrence = null, TimeSpan? delay = null, string? key = null)
+    private static async Task<int> AddJob<T>(Expression<Func<T, Task>> job, TimeSpan? recurrence = null, TimeSpan? delay = null, string? key = null)
     {
         if (job.Body is not MethodCallExpression methodCall)
         {
@@ -53,7 +53,8 @@ public static class Jobs
         
         var methodName = methodCall.Method.Name;
         var instance = new Job(fullName, methodName, arguments, call, key, recurrence, delay);
-        _storage.AddJob(instance);
+        var result = await _storage.AddJob(instance);
+        return result.Id;
     }
 
     private static List<Argument> ParseArguments(IEnumerable<Expression> arguments)

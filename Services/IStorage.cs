@@ -10,7 +10,7 @@ public interface IStorage
     /// <summary>
     /// Add job to the storage.
     /// </summary>
-    Task AddJob(Job job);
+    Task<Job> AddJob(Job job);
     
     /// <summary>
     /// Returns jobs to be processed by the thread pool.

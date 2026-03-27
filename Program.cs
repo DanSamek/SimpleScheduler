@@ -23,14 +23,14 @@ var app = builder.Build();
 
 app.UseSimpleScheduler();
 
-Jobs.AddInstantJob<Test>(t => t.WithDateTime(new DateTime(1,2,3)));
-Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.EntityB(new Test.EntityA(1, 2, 3), 2)));
-Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.EntityB(new Test.EntityA(1, 2, 3), 2)));
-Jobs.AddInstantJob<Test>(t => t.WithArguments(2, 3));
-Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
-Jobs.AddRecurringJob<Test>(t => t.Run2(), TimeSpan.FromSeconds(10));
-Jobs.AddRecurringJob<Test>(t => t.RunException(), TimeSpan.FromSeconds(10));
-Jobs.AddInstantJob<Test>(t => t.LongRunningJob());
+await Jobs.AddInstantJob<Test>(t => t.WithDateTime(new DateTime(1,2,3)));
+await Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.EntityB(new Test.EntityA(1, 2, 3), 2)));
+await Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.EntityB(new Test.EntityA(1, 2, 3), 2)));
+await Jobs.AddInstantJob<Test>(t => t.WithArguments(2, 3));
+await Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
+await Jobs.AddRecurringJob<Test>(t => t.Run2(), TimeSpan.FromSeconds(10));
+await Jobs.AddRecurringJob<Test>(t => t.RunException(), TimeSpan.FromSeconds(10));
+await Jobs.AddInstantJob<Test>(t => t.LongRunningJob());
 app.Run();
 
 class Test

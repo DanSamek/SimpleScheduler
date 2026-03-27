@@ -20,17 +20,15 @@ public class EfStorage : IStorage
     }
     
     /// <inheritdoc /> 
-    public async Task AddJob(Job job)
+    public async Task<Job> AddJob(Job job)
     {
-        await _dbContextProvider.WithContext(async context =>
+        return await _dbContextProvider.WithContext(async context =>
         {
             var jobs = context.Set<Job>();
 
-            var sameJob = jobs.Any(j => j.Key == job.Key);
-            if (sameJob) return;
-
             jobs.Add(job);
             await context.SaveChangesAsync();
+            return job;
         });
     }
 
