@@ -56,9 +56,12 @@ public class Scheduler
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                if (e is not ObjectDisposedException)
+                {
+                    Console.WriteLine(e);    
+                }
             }
-        }
+        } 
     }
 
     private async Task RestoreState()
