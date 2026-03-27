@@ -1,3 +1,4 @@
+using SimpleScheduler.ContextProvider;
 using SimpleScheduler.Hub;
 using SimpleScheduler.Mapper;
 using SimpleScheduler.Middlewares;
@@ -18,16 +19,17 @@ public static class SimpleScheduler
         
         services.AddSingleton<SimpleSchedulerUser>(_ => options.User!);
         services.AddSingleton<SchedulerHubNotifier>();
-        services.AddSingleton<IStorage>(sp =>
-        {
-            var storageType = typeof(EfStorage<>).MakeGenericType(options.DbContextType!);
-            var instance = (IStorage)ActivatorUtilities.CreateInstance(sp, storageType);
-            return instance;
-        });
+        services.AddSingleton<IStorage, EfStorage>();
         services.AddSingleton<ThreadPool.ThreadPool>(_ => new ThreadPool.ThreadPool(options.NumberOfThreads));
         services.AddSingleton<IJobMapper, JobMapper>();
-        services.AddSingleton<Scheduler>();
+        services.AddSingleton<Scheduler.Scheduler>();
         services.AddSingleton<SimpleSchedulerMiddleware>();
+        services.AddSingleton<DbContextProvider>(sp =>
+        {
+            var scopeFactory = sp.GetService<IServiceScopeFactory>();
+            var instance = new DbContextProvider(options.DbContextType!, scopeFactory!);
+            return instance;
+        });
         
         services
             .AddRazorPages()
@@ -43,7 +45,7 @@ public static class SimpleScheduler
     {
         var services = app.Services;
         var threadPool = services.GetService<ThreadPool.ThreadPool>()!;
-        var scheduler = services.GetService<Scheduler>()!;
+        var scheduler = services.GetService<Scheduler.Scheduler>()!;
         var storage = services.GetService<IStorage>()!;
         
         Jobs.SetStorage(storage);

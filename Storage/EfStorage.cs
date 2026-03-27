@@ -1,29 +1,28 @@
 using Microsoft.EntityFrameworkCore;
+using SimpleScheduler.ContextProvider;
 using SimpleScheduler.Entities;
 using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Storage;
 
-public class EfStorage<TDbContext> : IStorage
-    where TDbContext : DbContext
+public class EfStorage : IStorage
 {
-    
-    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly DbContextProvider _dbContextProvider;
     private readonly SchedulerHubNotifier _hubNotifier; 
     
     /// <summary>
     /// .Ctor
     /// </summary>
-    public EfStorage(IServiceScopeFactory scopeFactory, SchedulerHubNotifier hubNotifier)
+    public EfStorage(DbContextProvider dbContextProvider, SchedulerHubNotifier hubNotifier)
     {
-        _scopeFactory = scopeFactory;
+        _dbContextProvider = dbContextProvider;
         _hubNotifier = hubNotifier;
     }
     
     /// <inheritdoc /> 
     public async Task AddJob(Job job)
     {
-        await WithContext(async context =>
+        await _dbContextProvider.WithContext(async context =>
         {
             var jobs = context.Set<Job>();
 
@@ -38,7 +37,7 @@ public class EfStorage<TDbContext> : IStorage
     /// <inheritdoc />
     public async Task<IReadOnlyList<Execution>> JobsToRun()
     {
-        return await WithContext(async context =>
+        return await _dbContextProvider.WithContext(async context =>
         {
             var jobs = context.Set<Job>();
         
@@ -72,7 +71,7 @@ public class EfStorage<TDbContext> : IStorage
 
     public async Task UpdateExecutionState(int executionId, ExecutionState newState)
     {
-        await WithContext(async context =>
+        await _dbContextProvider.WithContext(async context =>
         {
             var executions = context.Set<Execution>();
 
@@ -102,7 +101,7 @@ public class EfStorage<TDbContext> : IStorage
     /// <inheritdoc />
     public async Task SetExecutionFailedState(int executionId, string errorMessage)
     {
-        await WithContext(async context =>
+        await _dbContextProvider.WithContext(async context =>
         {
             var executions = context.Set<Execution>();
             var execution = executions
@@ -126,7 +125,7 @@ public class EfStorage<TDbContext> : IStorage
     /// <inheritdoc />
     public async Task<List<Execution>> ExecutionsPage(int pageIndex)
     {
-        return await WithContext(context =>
+        return await _dbContextProvider.WithContext(context =>
         {
             var executions = context.Set<Execution>()
                 .Include(e => e.Job)
@@ -142,7 +141,7 @@ public class EfStorage<TDbContext> : IStorage
     /// <inheritdoc />
     public async Task<TimeSpan> NearestExecutionTimeForJob()
     {
-        return await WithContext(context =>
+        return await _dbContextProvider.WithContext(context =>
         {
             var nearestExecutionTime = context.Set<Job>()
                 .OrderBy(j => j.NextExecutionTime)
@@ -159,7 +158,7 @@ public class EfStorage<TDbContext> : IStorage
     /// <inheritdoc />
     public async Task<List<Job>> AllJobs()
     {
-        return await WithContext(context =>
+        return await _dbContextProvider.WithContext(context =>
         {
             var jobs = context.Set<Job>().ToList();
             return Task.FromResult(jobs);
@@ -169,7 +168,7 @@ public class EfStorage<TDbContext> : IStorage
     /// <inheritdoc />
     public async Task<Execution?> GetExecutionByJobId(int jobId)
     {
-        return await WithContext(async context =>
+        return await _dbContextProvider.WithContext(async context =>
         {
             var job = context.Set<Job>()
                 .Include(j => j.Arguments)
@@ -189,7 +188,7 @@ public class EfStorage<TDbContext> : IStorage
     /// <inheritdoc />
     public async Task<Execution?> ExecutionById(int id)
     {
-        return await WithContext(context =>
+        return await _dbContextProvider.WithContext(context =>
         {
             var execution = context.Set<Execution>()
                 .AsNoTracking()
@@ -205,19 +204,19 @@ public class EfStorage<TDbContext> : IStorage
     /// <inheritdoc />
     public async Task<int> TotalExecutionPages()
     {
-        return await WithContext(context => Task.FromResult((int)double.Ceiling(context.Set<Execution>().Count() * 1.0 / Constants.PAGE_SIZE)));
+        return await _dbContextProvider.WithContext(context => Task.FromResult((int)double.Ceiling(context.Set<Execution>().Count() * 1.0 / Constants.PAGE_SIZE)));
     }
     
     /// <inheritdoc />
     public async Task<int> TotalExecutions()
     {
-        return await WithContext(context => Task.FromResult(context.Set<Execution>().Count()));
+        return await _dbContextProvider.WithContext(context => Task.FromResult(context.Set<Execution>().Count()));
     }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<Execution>> NotEndedExecutions()
     {
-        return await WithContext(context =>
+        return await _dbContextProvider.WithContext(context =>
         {
             var result = context.Set<Execution>().Where(e =>
                 e.State == ExecutionState.Created ||
@@ -232,7 +231,7 @@ public class EfStorage<TDbContext> : IStorage
     /// <inheritdoc />
     public async Task<Job?> JobById(int id)
     {
-        return await WithContext(context =>
+        return await _dbContextProvider.WithContext(context =>
         {
             var job = context.Set<Job>()
                 .AsNoTracking()
@@ -248,29 +247,5 @@ public class EfStorage<TDbContext> : IStorage
             job?.Executions = executions;
             return Task.FromResult(job);
         });
-    }
-    
-    private async Task<T> WithContext<T>(Func<TDbContext, Task<T>> action)
-    {
-        using var scope = _scopeFactory.CreateScope();
-        await using var context = scope.GetSchedulerContext<TDbContext>();
-        var result = await action(context);
-        return result;
-    }
-    
-    private async Task WithContext(Func<TDbContext, Task> action)
-    {
-        using var scope = _scopeFactory.CreateScope();
-        await using var context = scope.GetSchedulerContext<TDbContext>();
-        await action(context);
-    }
-}
-
-public static class ServiceScopeExtensions
-{
-    public static TDbContext GetSchedulerContext<TDbContext>(this IServiceScope scope)
-        where TDbContext : DbContext
-    {
-        return scope.ServiceProvider.GetRequiredService<TDbContext>();
     }
 }

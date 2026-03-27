@@ -3,7 +3,7 @@ using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Views.SimpleScheduler;
 
-public class Jobs : PageModel
+public class JobsModel : PageModel
 {
     public required List<JobDto> JobItems { get; set; }
 }

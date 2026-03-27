@@ -1,20 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
 using SimpleScheduler.Storage;
 using SimpleScheduler.Views.SimpleScheduler;
-using Index = SimpleScheduler.Views.SimpleScheduler.Index;
-
-namespace SimpleScheduler.Views;
+namespace SimpleScheduler.Controllers;
 
 public class SimpleSchedulerController : Controller
 {
     private readonly IStorage _storage;
-    private readonly Scheduler _scheduler;
+    private readonly Scheduler.Scheduler _scheduler;
     private readonly SimpleSchedulerUser _user;
     
     /// <summary>
     /// .Ctor
     /// </summary>
-    public SimpleSchedulerController(IStorage storage, Scheduler scheduler, SimpleSchedulerUser user)
+    public SimpleSchedulerController(IStorage storage, Scheduler.Scheduler scheduler, SimpleSchedulerUser user)
     {
         _storage = storage;
         _scheduler = scheduler;
@@ -48,7 +46,7 @@ public class SimpleSchedulerController : Controller
     [HttpGet("/simple-scheduler")]
     public IActionResult Index()
     {
-        var model = new Index();
+        var model = new IndexModel();
         return View(model);
     }
     
@@ -58,7 +56,7 @@ public class SimpleSchedulerController : Controller
         var result = await _storage.ExecutionsPage(pageId ?? 0);
         var totalPages = await _storage.TotalExecutionPages();
         var totalExecutions = await _storage.TotalExecutions();
-        var model = new Executions
+        var model = new ExecutionsModel
         {
             ExecutionsList = result
                 .Select(e => e.ToDto(2))
@@ -79,7 +77,7 @@ public class SimpleSchedulerController : Controller
             return NotFound();
         }
         
-        var model = new Execution
+        var model = new ExecutionModel
         {
             ExecutionDto = execution.ToDto(2)!
         };
@@ -90,7 +88,7 @@ public class SimpleSchedulerController : Controller
     public async Task<IActionResult> Jobs()
     {
         var jobs = await _storage.AllJobs();
-        var model = new SimpleScheduler.Jobs
+        var model = new JobsModel
         {
             JobItems = jobs.Select(e => e.ToDto(2)).ToList()!
         };
@@ -106,7 +104,7 @@ public class SimpleSchedulerController : Controller
             return NotFound();
         }
         
-        var model = new Job
+        var model = new JobModel
         {
             JobDto = job.ToDto(2)!
         };

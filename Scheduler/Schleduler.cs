@@ -3,7 +3,7 @@ using SimpleScheduler.Mapper;
 using SimpleScheduler.Storage;
 using SimpleScheduler.ThreadPool;
 
-namespace SimpleScheduler;
+namespace SimpleScheduler.Scheduler;
 
 public class Scheduler
 {

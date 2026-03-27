@@ -23,5 +23,6 @@ public static class ModelBuilderExtensions
     {
         modelBuilder.Entity<Execution>();
         modelBuilder.Entity<Job>();
+        modelBuilder.Entity<Token>();
     }
 }

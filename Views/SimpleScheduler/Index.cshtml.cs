@@ -3,6 +3,6 @@ using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Views.SimpleScheduler;
 
-public class Index : PageModel
+public class IndexModel : PageModel
 {
 }

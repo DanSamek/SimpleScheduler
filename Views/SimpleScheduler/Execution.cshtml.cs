@@ -3,7 +3,7 @@ using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Views.SimpleScheduler;
 
-public class Execution : PageModel
+public class ExecutionModel : PageModel
 {
     public required ExecutionDto ExecutionDto { get; set; }
 }

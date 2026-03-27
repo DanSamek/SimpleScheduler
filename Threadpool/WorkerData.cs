@@ -5,4 +5,4 @@ namespace SimpleScheduler.ThreadPool;
 /// <summary>
 /// Data for worker's job queue. 
 /// </summary>
-internal record WorkerData(ExecutionWithJob ExecutionWithJob, Scheduler Scheduler);
+internal record WorkerData(ExecutionWithJob ExecutionWithJob, Scheduler.Scheduler Scheduler);

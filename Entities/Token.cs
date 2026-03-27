@@ -1,0 +1,17 @@
+namespace SimpleScheduler.Entities;
+
+/// <summary>
+/// Token for auth purposes
+/// </summary>
+public class Token : DoId
+{
+    /// <summary>
+    /// Value of the token.
+    /// </summary>
+    public required string Value { get; set; }
+    
+    /// <summary>
+    /// Expiration date of the token.
+    /// </summary>
+    public required DateTime ExpireDate { get; set; }
+}
