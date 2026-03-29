@@ -3,4 +3,19 @@
 @{
     ViewData["Title"] = "Simple scheduler";
     Layout = "_Layout";
+
+    var schedulerOptions = Model.Options;
+    var runningExecutions = Model.RunningExecutions;
+}
+<p>DbContextType: @schedulerOptions.DbContextType!.Name</p>
+<p>Number of worker threads: @schedulerOptions.NumberOfThreads</p>
+
+@if (runningExecutions.Count == 0)
+{
+    <p>No running executions</p>
+}
+else
+{
+    <p>Running executions (@runningExecutions.Count)</p>
+    await Html.RenderPartialAsync("_ExecutionsTable", runningExecutions);
 }

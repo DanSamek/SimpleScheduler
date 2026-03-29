@@ -1,23 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
+using SimpleScheduler.Entities;
+using SimpleScheduler.Scheduler;
 using SimpleScheduler.Services;
 using SimpleScheduler.Views.SimpleScheduler;
 namespace SimpleScheduler.Controllers;
 
 public class SimpleSchedulerController : Controller
 {
-    private readonly IStorage _storage; 
+    private readonly IStorage _storage;
     private readonly Scheduler.Scheduler _scheduler;
+    private readonly SimpleSchedulerOptions _options;
     private readonly SimpleSchedulerUser _user;
     private readonly ITokenService _tokenService;
     
     /// <summary>
     /// .Ctor
     /// </summary>
-    public SimpleSchedulerController(IStorage storage, Scheduler.Scheduler scheduler, SimpleSchedulerUser user, ITokenService tokenService)
+    public SimpleSchedulerController(IStorage storage, Scheduler.Scheduler scheduler, SimpleSchedulerOptions options, ITokenService tokenService)
     {
         _storage = storage;
         _scheduler = scheduler;
-        _user = user;
+        _options = options;
+        _user = options.User!;
         _tokenService = tokenService;
     }
 
@@ -52,9 +56,16 @@ public class SimpleSchedulerController : Controller
     }
     
     [HttpGet("/simple-scheduler")]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        var model = new IndexModel();
+        var runningExecutions = await _storage.GetExecutionsByState(ExecutionState.Running);
+        var model = new IndexModel
+        {
+            Options = _options,
+            RunningExecutions = runningExecutions
+                .Select(re => re.ToDto(2))
+                .ToList()!
+        };
         return View(model);
     }
     
@@ -123,6 +134,13 @@ public class SimpleSchedulerController : Controller
     public async Task<IActionResult> Schedule([FromBody] ScheduleJobDto dto)
     {
         var result = await _scheduler.ScheduleJob(dto.Id, dto.Arguments);
-        return result ? Ok() : NotFound();
+        IActionResult response = result switch
+        {
+            ScheduleJobResult.InvalidArguments => BadRequest(),
+            ScheduleJobResult.NotFound => NotFound(),
+            ScheduleJobResult.Scheduled => Ok(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+        return response;
     }
 }

@@ -248,4 +248,22 @@ public class EfStorage : IStorage
             return Task.FromResult(job);
         });
     }
+
+    
+    /// <inheritdoc />
+    public async Task<List<Execution>> GetExecutionsByState(ExecutionState state)
+    {
+        return await _dbContextProvider.WithContext(context =>
+        {
+            var executions = context.Set<Execution>()
+                .AsNoTracking()
+                .Include(e => e.Job)
+                .Where(e => e.State == state)
+                .OrderByDescending(e => e.Created)
+                .Take(Constants.PAGE_SIZE)
+                .ToList();
+            
+            return Task.FromResult(executions);
+        });
+    }
 }

@@ -17,7 +17,7 @@ public static class SimpleScheduler
         optionsAction.Invoke(options);
         options.Validate();
         
-        services.AddSingleton<SimpleSchedulerUser>(_ => options.User!);
+        services.AddSingleton<SimpleSchedulerOptions>(_ => options);
         services.AddSingleton<SchedulerHubNotifier>();
         services.AddSingleton<IStorage, EfStorage>();
         services.AddSingleton<ThreadPool.ThreadPool>(_ => new ThreadPool.ThreadPool(options.NumberOfThreads));

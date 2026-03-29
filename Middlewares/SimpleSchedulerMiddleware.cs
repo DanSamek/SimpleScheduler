@@ -27,7 +27,7 @@ public class SimpleSchedulerMiddleware : IMiddleware
             context.Response.Redirect("/simple-scheduler/login");
             return;
         }
-#endif
+        #endif
         
         await next(context);
     }

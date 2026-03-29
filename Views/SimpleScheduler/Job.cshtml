@@ -42,24 +42,30 @@
     await Html.RenderPartialAsync("_ExecutionsTable", Model.JobDto.Executions);
 }
 
+
+<script>
+let editor = null;
+
+function getEditorValue() {
+    return editor == null ? "" :  editor.getValue();
+}
+</script>
+
 @if (canShowEditor)
 {
     <script>
-    let editor;
-    require.config({ paths: { 'vs': '/js/min/vs' }});
-    require(['vs/editor/editor.main'], function() {
-        editor = monaco.editor.create(document.querySelector(".job-arguments"),{
-            value: '@Html.Raw(methodArgs)',
-            language: 'json',
-            automaticLayout: true,
-            theme: 'vs-dark',
-            readOnly: false
+        require.config({ paths: { 'vs': '/js/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            editor = monaco.editor.create(document.querySelector(".job-arguments"),{
+                value: '@Html.Raw(methodArgs)',
+                language: 'json',
+                automaticLayout: true,
+                theme: 'vs-dark',
+                readOnly: false
+            });
         });
-    });
-    
-    function getEditorValue() {
-        return editor.getValue();
-    }
-</script>
-    
+    </script>
 }
+    
+
+
