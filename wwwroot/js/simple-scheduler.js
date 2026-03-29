@@ -29,14 +29,19 @@ connection.on("ExecutionUpdate", function (dto) {
     `;
 });
 
-async function schedule(jobId){
-    const result = await fetch(`/simple-scheduler/jobs/schedule/${jobId}`, {
-        method: "POST"
+async function schedule(jobId, arguments){
+    const result = await fetch(`/simple-scheduler/jobs/schedule`, {
+        method: "POST",
+        body: JSON.stringify({'arguments' : arguments, 'id' : jobId }),
+        headers: {
+            "Content-type": 'application/json'
+        }
     });
+    
     if (result.ok) {
         
     }
-    else{
+    else {
         
     }
 }

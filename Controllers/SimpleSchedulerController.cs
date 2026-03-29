@@ -119,10 +119,10 @@ public class SimpleSchedulerController : Controller
         return View(model);
     }   
     
-    [HttpPost("/simple-scheduler/jobs/schedule/{id:int}")]
-    public async Task<IActionResult> Schedule(int id)
+    [HttpPost("/simple-scheduler/jobs/schedule")]
+    public async Task<IActionResult> Schedule([FromBody] ScheduleJobDto dto)
     {
-        var result = await _scheduler.ScheduleJob(id);
+        var result = await _scheduler.ScheduleJob(dto.Id, dto.Arguments);
         return result ? Ok() : NotFound();
     }
 }

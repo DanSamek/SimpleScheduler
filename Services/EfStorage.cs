@@ -233,6 +233,8 @@ public class EfStorage : IStorage
         {
             var job = context.Set<Job>()
                 .AsNoTracking()
+                .Include(j => j.Arguments)
+                .ThenInclude(a => a.Arguments)
                 .FirstOrDefault(e => e.Id == id);
             
             var executions = context.Set<Execution>()

@@ -17,6 +17,8 @@ public class SimpleSchedulerMiddleware : IMiddleware
     /// <inheritdoc /> 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
+        
+        #if !DEBUG
         var isLoginPath = context.Request.Path.Value?.Contains("login") ?? false;
         if (!isLoginPath &&
             (!context.Request.Cookies.TryGetValue(Constants.USER_COOKIE, out var value)
@@ -25,6 +27,7 @@ public class SimpleSchedulerMiddleware : IMiddleware
             context.Response.Redirect("/simple-scheduler/login");
             return;
         }
+#endif
         
         await next(context);
     }

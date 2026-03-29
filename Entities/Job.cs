@@ -91,7 +91,7 @@ public class Job : DoId, IDto<JobDto>
         return new JobDto(Id, Key, Type,
             MethodName, IsRecurrent(), 
             IsRecurrent() ? NextExecutionTime.ToString(CultureInfo.InvariantCulture) : "No next execution",
-            Executions.Select(e => e.ToDto(recursionDepth - 1)).ToList(), Call);
+            Executions.Select(e => e.ToDto(recursionDepth - 1)).ToList(), Call, CreateArguments().ToList());
     }
 
     internal object[] CreateArguments()
