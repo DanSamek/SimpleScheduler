@@ -4,8 +4,14 @@
 
 @{
     var job = Model.JobDto;
-    var methodArgs = JsonSerializer.Serialize(job.Arguments);
-    var canShowEditor = methodArgs != "[]";
+    var call = job.Call;
+    
+    var firstOpeningBracket = call.IndexOf('(');
+    var lastOpeningBracket = call.LastIndexOf(')');
+    var canShowEditor = firstOpeningBracket + 1 != lastOpeningBracket;
+    var displayJobText = canShowEditor 
+        ? call[(firstOpeningBracket + 1)..lastOpeningBracket]
+        : "";
     
     Layout = "_Layout";
     ViewData["Title"] = $"{job.Type}.{job.MethodName}";
@@ -27,7 +33,7 @@
             <div class="job-arguments" style="height: 100px; width: 100%"></div>
         }
         <div class="is-flex is-flex-direction-column is-align-items-end" style="gap: 0.5em;">
-            @if (canShowEditor)
+            @if (canShowEditor && job.Arguments.Count != 0)
             {
                 <p><i>NOTE: this will create new job entity</i></p>
             }
@@ -57,8 +63,8 @@ function getEditorValue() {
         require.config({ paths: { 'vs': '/js/min/vs' }});
         require(['vs/editor/editor.main'], function() {
             editor = monaco.editor.create(document.querySelector(".job-arguments"),{
-                value: '@Html.Raw(methodArgs)',
-                language: 'json',
+                value: @Html.Raw(JsonSerializer.Serialize(displayJobText)),
+                language: 'csharp',
                 automaticLayout: true,
                 theme: 'vs-dark',
                 readOnly: false

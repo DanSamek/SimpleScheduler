@@ -76,4 +76,9 @@ public interface IStorage
     /// Returns first <see cref="Constants.PAGE_SIZE"/> executions with requested state.
     /// </summary>
     Task<List<Execution>> GetExecutionsByState(ExecutionState state);
+
+    /// <summary>
+    /// Returns job by id with loaded parameters.
+    /// </summary>
+    Task<Job?> GetJobById(int id);
 }

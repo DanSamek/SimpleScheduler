@@ -266,4 +266,18 @@ public class EfStorage : IStorage
             return Task.FromResult(executions);
         });
     }
+    
+    /// <inheritdoc />
+    public async Task<Job?> GetJobById(int id)
+    {
+        return await _dbContextProvider.WithContext(context =>
+        {
+            var job = context.Set<Job>()
+                .AsNoTracking()
+                .Include(j => j.Arguments)
+                .FirstOrDefault(j => j.Id == id);
+
+            return Task.FromResult(job);
+        });
+    }
 }

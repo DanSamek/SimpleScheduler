@@ -104,20 +104,25 @@ public class Scheduler
     /// <summary>
     /// Schedules a job on the thread pool.
     /// </summary>
-    /// <param name="id">Id of the job</param>
-    internal async Task<ScheduleJobResult> ScheduleJob(int id, string? arguments)
+    internal async Task<ScheduleJobResult> ScheduleJob(int id, string arguments)
     {
-        // Get jot by id
-        // -> parse args 
-        //      if default -> execute
-        //      if invalid -> return false (enum)
-        //      if valid, create new job with new args and schedule it same as parent job.
+        var job = await _storage.GetJobById(id);
+        if (job is null) return ScheduleJobResult.NotFound;
+
+        if (arguments == string.Empty && job.Arguments.Count != 0) return ScheduleJobResult.InvalidArguments;
+
+        if (arguments == string.Empty)  
+        {
+            var execution = await _storage.GetExecutionByJobId(id);
+            if (execution == null) return ScheduleJobResult.NotFound;
+            
+            var executionWithJob = _jobMapper.GetTaskForExecutions([execution]).First();
+            await Enqueue(executionWithJob);
+            return ScheduleJobResult.Scheduled;
+        }
         
-        var execution = await _storage.GetExecutionByJobId(id);
-        if (execution == null) return ScheduleJobResult.NotFound;
+        // TODO parse arguments for the method and clone a job!
         
-        var executionWithJob = _jobMapper.GetTaskForExecutions([execution]).First();
-        await Enqueue(executionWithJob);
         return ScheduleJobResult.Scheduled;
     }
 

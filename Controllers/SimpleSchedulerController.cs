@@ -133,7 +133,7 @@ public class SimpleSchedulerController : Controller
     [HttpPost("/simple-scheduler/jobs/schedule")]
     public async Task<IActionResult> Schedule([FromBody] ScheduleJobDto dto)
     {
-        var result = await _scheduler.ScheduleJob(dto.Id, dto.Arguments);
+        var result = await _scheduler.ScheduleJob(dto.Id, dto.Arguments ?? string.Empty);
         IActionResult response = result switch
         {
             ScheduleJobResult.InvalidArguments => BadRequest(),
