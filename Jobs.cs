@@ -17,6 +17,19 @@ public static class Jobs
     /// </summary>
     public static void SetStorage(IStorage storage) => _storage = storage;
     
+    
+    /// <summary>
+    /// Executes a job once.
+    /// </summary>
+    public static async Task<int> AddInstantJob<T, TData>(Job<T> job, Arguments<TData> arguments)
+    {
+        // TODO!
+        await Task.CompletedTask;
+        throw new NotImplementedException();
+    }
+    
+    // Old interface below!
+    
     /// <summary>
     /// Executes a job once.
     /// </summary>
@@ -87,4 +100,140 @@ public static class Jobs
         }
     }
     
+}
+
+public interface IValidatable<out T>
+{
+    T Validate();
+}
+
+public class Arguments
+{
+    public TimeSpan Recurrence { get; set; }
+    
+    public TimeSpan Delay { get; set; }
+
+    public RetrySchedule RetrySchedule { get; set; } = new();
+}
+
+
+public class Arguments<T> : Arguments, IValidatable<Arguments<T>>
+{
+    public T? Data { get; set; }
+
+    public Arguments<T> Validate()
+    {
+        return Data == null ? throw new NullReferenceException("Data is null") : this;
+    }
+}
+
+public class RetrySchedule
+{
+    public TimeSpan[] Retries { get; set; } = [];
+}
+
+
+public class ArgumentBuilder<T>
+{
+    private readonly Arguments<T> _arguments = new();
+
+    public ArgumentBuilder<T> SetData(T data)
+    {
+        _arguments.Data = data;
+        return this;
+    }
+    
+    public Arguments<T> Build()
+        => _arguments.Validate();
+
+    public ArgumentBuilder<T> SetRecurrence(TimeSpan recurrence)
+        => LambdaReturn(() => _arguments.Recurrence = recurrence);
+
+    public ArgumentBuilder<T> SetDelay(TimeSpan delay)
+        => LambdaReturn(() => _arguments.Delay = delay);
+
+    public ArgumentBuilder<T> SetRetrySchedule(params TimeSpan[] args)
+        => LambdaReturn(() => _arguments.RetrySchedule.Retries = args);
+    
+    public ArgumentBuilder<T> SetRetrySchedule(TimeSpan retryTime, int count)
+        => SetRetrySchedule(Enumerable.Range(0, count).Select(_ => retryTime).ToArray());
+
+    private ArgumentBuilder<T> LambdaReturn(Action action)
+    {
+        action();
+        return this;
+    }
+}
+
+public class ArgumentBuilder
+{
+    private readonly Arguments _arguments = new();
+    
+    public Arguments Build()
+        => _arguments;
+
+    public ArgumentBuilder SetRecurrence(TimeSpan recurrence)
+        => LambdaReturn(() => _arguments.Recurrence = recurrence);
+
+    public ArgumentBuilder SetDelay(TimeSpan delay)
+        => LambdaReturn(() => _arguments.Delay = delay);
+
+    public ArgumentBuilder SetRetrySchedule(params TimeSpan[] args)
+        => LambdaReturn(() => _arguments.RetrySchedule.Retries = args);
+    
+    public ArgumentBuilder SetRetrySchedule(TimeSpan retryTime, int count)
+        => SetRetrySchedule(Enumerable.Range(0, count).Select(_ => retryTime).ToArray());
+
+    private ArgumentBuilder LambdaReturn(Action action)
+    {
+        action();
+        return this;
+    }
+}
+
+
+public class Job<T> : IValidatable<Job<T>>
+{
+    public string? Name { get; set; }
+    
+    public string? Key { get; set; }
+    
+    public Job<T> Validate()
+    {
+        return Name == null ? throw new NullReferenceException("Name is null") : this;
+    }
+}
+
+public class SimpleSchedulerJobContext
+{
+    
+}
+
+public class JobBuilder<T>
+{
+    private Job<T> _job = new();
+
+    public JobBuilder<T> SetJob(Expression<Func<T, SimpleSchedulerJobContext, Task>> selector)
+        => LambdaReturn(() =>
+        {
+            if (selector is LambdaExpression { Body: MethodCallExpression methodCallExpression })
+            {
+                _job.Name = methodCallExpression.Method.Name;
+                return;
+            }
+            throw new NotSupportedException("Expression is not supported by simple scheduler.");
+        });
+        
+    
+    public JobBuilder<T> SetKey(string key)
+        => LambdaReturn(() => _job.Key = key);
+    
+    public Job<T> Build()
+        => _job;
+    
+    private JobBuilder<T> LambdaReturn(Action action)
+    {
+        action();
+        return this;
+    }
 }

@@ -24,18 +24,29 @@ var app = builder.Build();
 
 app.UseSimpleScheduler();
 
-await Jobs.AddInstantJob<Test>(t => t.WithDateTime(new DateTime(1,2,3)));
-await Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.EntityB(new Test.EntityA(1, 2, 3), 2)));
-await Jobs.AddInstantJob<Test>(t => t.WithComplexArgument(new Test.EntityB(new Test.EntityA(1, 2, 3), 2)));
-await Jobs.AddInstantJob<Test>(t => t.WithArguments(2, 3));
-await Jobs.AddRecurringJob<Test>(t => t.Run(), TimeSpan.FromSeconds(10));
-await Jobs.AddRecurringJob<Test>(t => t.Run2(), TimeSpan.FromSeconds(10));
-await Jobs.AddRecurringJob<Test>(t => t.RunException(), TimeSpan.FromSeconds(10));
 await Jobs.AddInstantJob<Test>(t => t.LongRunningJob());
+await Jobs.AddInstantJob(
+    new JobBuilder<Test>()
+        .SetJob((t, c) => t.Job(c))
+        .SetKey("INSANE_JOB")
+        .Build(),
+    new ArgumentBuilder<int>()
+        .SetData(5)
+        .SetRecurrence(TimeSpan.FromHours(24))
+        .SetDelay(TimeSpan.FromHours(1))
+        .SetRetrySchedule(TimeSpan.FromMinutes(5), 10)
+        .Build()
+);
+
 app.Run();
 
 class Test
 {
+    public async Task Job(SimpleSchedulerJobContext c)
+    {
+        await Task.Delay(5000);
+    }
+    
     public async Task Run()
     {
         await Task.Delay(5000);
