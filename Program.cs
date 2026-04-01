@@ -30,8 +30,8 @@ await Jobs.AddInstantJob(
         .SetJob((t, c) => t.Job(c))
         .SetKey("INSANE_JOB")
         .Build(),
-    new ArgumentBuilder<int>()
-        .SetData(5)
+    new ArgumentBuilder<Test.EntityB>()
+        .SetData(new Test.EntityB(new Test.EntityA(1,2,3), 4))
         .SetRecurrence(TimeSpan.FromHours(24))
         .SetDelay(TimeSpan.FromHours(1))
         .SetRetrySchedule(TimeSpan.FromMinutes(5), 10)

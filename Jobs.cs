@@ -23,7 +23,15 @@ public static class Jobs
     /// </summary>
     public static async Task<int> AddInstantJob<T, TData>(Job<T> job, Arguments<TData> arguments)
     {
-        // TODO!
+        var a = JsonSerializer.Serialize(job);
+        var b = JsonSerializer.Serialize(arguments);
+
+        var x = typeof(Job<>).MakeGenericType(typeof(T));
+        var aa = JsonSerializer.Deserialize(a, x);
+        
+        var y = typeof(Arguments<>).MakeGenericType(typeof(TData));
+        var bb = JsonSerializer.Deserialize(b, y);
+        
         await Task.CompletedTask;
         throw new NotImplementedException();
     }
