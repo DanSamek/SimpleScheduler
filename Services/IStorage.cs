@@ -20,7 +20,7 @@ public interface IStorage
     /// <summary>
     /// Updates state of the execution under a certain key.
     /// </summary>
-    Task UpdateExecutionState(int executionId, ExecutionState newState);
+    Task UpdateExecutionState(int executionId, int retryCount, ExecutionState newState);
     
     /// <summary>
     /// Updates an execution's state to a failed. 

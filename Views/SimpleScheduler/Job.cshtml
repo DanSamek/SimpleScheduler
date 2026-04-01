@@ -1,77 +1,24 @@
-@using System.Text.Json
 @using SimpleScheduler
 @model global::SimpleScheduler.Views.SimpleScheduler.JobModel
 
 @{
     var job = Model.JobDto;
-    var call = job.Call;
-    
-    var firstOpeningBracket = call.IndexOf('(');
-    var lastOpeningBracket = call.LastIndexOf(')');
-    var canShowEditor = firstOpeningBracket + 1 != lastOpeningBracket;
-    var displayJobText = canShowEditor 
-        ? call[(firstOpeningBracket + 1)..lastOpeningBracket]
-        : "";
-    
+  
     Layout = "_Layout";
     ViewData["Title"] = $"{job.Type}.{job.MethodName}";
 }
 
-<div class="grid">
-    <div class="container">
-        <p>Key: @job.Key</p>
-        <p>Type: @job.Type</p>
-        <p>Method name: @job.MethodName</p>
-        <p>Next execution time: @job.NextExecutionTime</p>
-        <p>Recurrent: @job.IsRecurrent</p>
-    </div>
-
-    <div class="container is-flex is-flex-direction-column" style="gap: 1em">
-        @if (canShowEditor)
-        {
-            <div>Arguments</div>
-            <div class="job-arguments" style="height: 100px; width: 100%"></div>
-        }
-        <div class="is-flex is-flex-direction-column is-align-items-end" style="gap: 0.5em;">
-            @if (canShowEditor && job.Arguments.Count != 0)
-            {
-                <p><i>NOTE: this will create new job entity</i></p>
-            }
-            <button class="button" onclick="schedule(@job.Id, getEditorValue())">Schedule job</button>
-        </div>
-    </div>
+<div class="container">
+    <p>Key: @job.Key</p>
+    <p>Type: @job.Type</p>
+    <p>Method name: @job.MethodName</p>
+    <p>Next execution time: @job.NextExecutionTime</p>
+    <p>Recurrent: @job.IsRecurrent</p>
 </div>
 
-<p>Last executions (max @(Constants.PAGE_SIZE))</p>
 
+<p>Last executions (max @(Constants.PAGE_SIZE))</p>
 @{
     await Html.RenderPartialAsync("_ExecutionsTable", Model.JobDto.Executions);
 }
-
-
-<script>
-let editor = null;
-
-function getEditorValue() {
-    return editor == null ? "" :  editor.getValue();
-}
-</script>
-
-@if (canShowEditor)
-{
-    <script>
-        require.config({ paths: { 'vs': '/js/min/vs' }});
-        require(['vs/editor/editor.main'], function() {
-            editor = monaco.editor.create(document.querySelector(".job-arguments"),{
-                value: @Html.Raw(JsonSerializer.Serialize(displayJobText)),
-                language: 'csharp',
-                automaticLayout: true,
-                theme: 'vs-dark',
-                readOnly: false
-            });
-        });
-    </script>
-}
-    
-
 

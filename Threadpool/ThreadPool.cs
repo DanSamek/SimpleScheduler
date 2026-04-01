@@ -9,14 +9,20 @@ public class ThreadPool
 {
     private readonly Worker[] _workers;
     private readonly Channel<WorkerData>[] _jobChannels;
-    public ThreadPool(int numberOfWorkers)
+    public ThreadPool(int numberOfWorkers, int retryCount)
     {
         _jobChannels = new Channel<WorkerData>[numberOfWorkers];
+
+        for (var i = 0; i < _jobChannels.Length; i++)
+        {
+            _jobChannels[i] = Channel.CreateUnbounded<WorkerData>();
+        }
         
-        for (var i = 0; i < _jobChannels.Length; i++) _jobChannels[i] = Channel.CreateUnbounded<WorkerData>();
-        
-        _workers = new  Worker[numberOfWorkers];
-        for (var i = 0; i < numberOfWorkers; i++) _workers[i] = new Worker(_jobChannels[i].Reader, i);
+        _workers = new Worker[numberOfWorkers];
+        for (var i = 0; i < numberOfWorkers; i++)
+        {
+            _workers[i] = new Worker(_jobChannels[i].Reader, i, retryCount);
+        }
     }
 
     /// <summary>

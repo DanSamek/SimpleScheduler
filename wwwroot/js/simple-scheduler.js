@@ -22,29 +22,24 @@ connection.on("ExecutionUpdate", function (dto) {
     }
     
     let info = document.querySelector(".update-info");
+    console.log(dto);
     info.innerHTML = `
         <p>State: ${dto.state}</p>
         <p>Started: ${dto.started}</p>
         <p>Ended: ${dto.ended}</p> 
+        <p>Retry count:  ${dto.retryCount}</p> 
     `;
-});
-
-async function schedule(jobId, arguments){
-    const result = await fetch(`/simple-scheduler/jobs/schedule`, {
-        method: "POST",
-        body: JSON.stringify({'arguments' : arguments, 'id' : jobId }),
-        headers: {
-            "Content-type": 'application/json'
-        }
-    });
     
-    if (result.ok) {
-        
+    
+    console.log(dto);
+    let currentValue = window.editor.getValue();
+
+    if (dto.error !== null) {
+        currentValue += `\n// Got an error/errors:\n\n/* ${dto.error} */`;
     }
-    else {
-        
-    }
-}
+    
+    window.editor.setValue(currentValue);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     const navBarBurger = document.querySelector('.navbar-burger');

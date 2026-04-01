@@ -14,6 +14,7 @@ builder.Services.AddSimpleScheduler(options =>
         Username = "user",
         Password = "12345678"
     };
+    options.RetryCount = 5;
 });
 
 // Force to the DI container.
@@ -45,8 +46,9 @@ class Test
         await Task.Delay(5000);
     }
 
-    public Task RunException()
+    public async Task RunException()
     {
+        await Task.Delay(5000);
         throw new NullReferenceException();
     }
 

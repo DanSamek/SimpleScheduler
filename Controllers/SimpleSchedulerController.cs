@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using SimpleScheduler.Entities;
-using SimpleScheduler.Scheduler;
 using SimpleScheduler.Services;
 using SimpleScheduler.Views.SimpleScheduler;
 namespace SimpleScheduler.Controllers;
@@ -8,7 +7,6 @@ namespace SimpleScheduler.Controllers;
 public class SimpleSchedulerController : Controller
 {
     private readonly IStorage _storage;
-    private readonly Scheduler.Scheduler _scheduler;
     private readonly SimpleSchedulerOptions _options;
     private readonly SimpleSchedulerUser _user;
     private readonly ITokenService _tokenService;
@@ -16,10 +14,9 @@ public class SimpleSchedulerController : Controller
     /// <summary>
     /// .Ctor
     /// </summary>
-    public SimpleSchedulerController(IStorage storage, Scheduler.Scheduler scheduler, SimpleSchedulerOptions options, ITokenService tokenService)
+    public SimpleSchedulerController(IStorage storage, SimpleSchedulerOptions options, ITokenService tokenService)
     {
         _storage = storage;
-        _scheduler = scheduler;
         _options = options;
         _user = options.User!;
         _tokenService = tokenService;
@@ -129,18 +126,4 @@ public class SimpleSchedulerController : Controller
         };
         return View(model);
     }   
-    
-    [HttpPost("/simple-scheduler/jobs/schedule")]
-    public async Task<IActionResult> Schedule([FromBody] ScheduleJobDto dto)
-    {
-        var result = await _scheduler.ScheduleJob(dto.Id, dto.Arguments ?? string.Empty);
-        IActionResult response = result switch
-        {
-            ScheduleJobResult.InvalidArguments => BadRequest(),
-            ScheduleJobResult.NotFound => NotFound(),
-            ScheduleJobResult.Scheduled => Ok(),
-            _ => throw new ArgumentOutOfRangeException()
-        };
-        return response;
-    }
 }

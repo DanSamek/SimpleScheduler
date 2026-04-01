@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text.Json;
 using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Entities;
@@ -36,6 +35,11 @@ public class Execution : DoId, IDto<ExecutionDto>
     /// </summary>
     public DateTime? Ended { get; set; } 
     
+    /// <summary>
+    /// How many times was retried to run a job.
+    /// </summary>
+    public int RetryCount { get; set; }
+    
     /// <inheritdoc /> 
     public ExecutionDto? ToDto(int recursionDepth)
     {
@@ -45,6 +49,6 @@ public class Execution : DoId, IDto<ExecutionDto>
         const string NOT_ENDED = "Not ended";
         
         return new ExecutionDto(Id, Job?.Key, State.ToString(),
-            Started?.ToString(CultureInfo.InvariantCulture) ?? NOT_STARTED, Ended?.ToString(CultureInfo.InvariantCulture) ?? NOT_ENDED, Error, Job?.ToDto(recursionDepth - 1));
+            Started?.ToString(CultureInfo.InvariantCulture) ?? NOT_STARTED, Ended?.ToString(CultureInfo.InvariantCulture) ?? NOT_ENDED, Error, RetryCount, Job?.ToDto(recursionDepth - 1));
     }
 }

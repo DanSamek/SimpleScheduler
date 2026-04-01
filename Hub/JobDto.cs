@@ -4,4 +4,4 @@ namespace SimpleScheduler.Hub;
 /// Dto for the job.
 /// </summary>
 public record JobDto(int Id, string Key, string Type, string MethodName, 
-    bool IsRecurrent, string NextExecutionTime, List<ExecutionDto?>? Executions, string Call, List<object> Arguments);
+    bool IsRecurrent, string NextExecutionTime, List<ExecutionDto?>? Executions, string Call);

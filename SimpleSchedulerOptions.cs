@@ -21,6 +21,11 @@ public record SimpleSchedulerOptions
     public SimpleSchedulerUser? User { get; set; }
     
     /// <summary>
+    /// Number of retries for the execution.
+    /// </summary>
+    public int RetryCount { get; set; }
+    
+    /// <summary>
     /// Validates options. 
     /// </summary>
     internal void Validate()
@@ -38,6 +43,11 @@ public record SimpleSchedulerOptions
         if (User == null)
         {
             throw new ArgumentNullException(nameof(User));
+        }
+
+        if (RetryCount < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(RetryCount), $"{nameof(RetryCount)} must be greater than or equal to 0");
         }
     }
 }

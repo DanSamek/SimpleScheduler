@@ -1,3 +1,4 @@
+using System.Text;
 using SimpleScheduler.Entities;
 using SimpleScheduler.Mapper;
 using SimpleScheduler.Services;
@@ -78,52 +79,30 @@ public class Scheduler
         {
             await Enqueue(execution);
         }
-
     }
     
     private async Task OnEnqueued(int executionId)
     {
-        await _storage.UpdateExecutionState(executionId, ExecutionState.Queued);
+        await _storage.UpdateExecutionState(executionId, 0, ExecutionState.Queued);
     }
     
-    internal async Task OnRunning(int executionId)
+    internal async Task OnRunning(int executionId, int retryCount)
     {
-        await _storage.UpdateExecutionState(executionId, ExecutionState.Running);
+        await _storage.UpdateExecutionState(executionId, retryCount, ExecutionState.Running);
     }
     
-    internal async Task OnEnded(int executionId)
+    internal async Task OnEnded(int executionId, int retryCount)
     {
-        await _storage.UpdateExecutionState(executionId, ExecutionState.Ended);
+        await _storage.UpdateExecutionState(executionId, retryCount, ExecutionState.Ended);
     }
 
-    public async Task OnException(int executionId, Exception? exception)
+    public async Task OnException(int executionId, List<Exception> exceptions)
     {
-        await _storage.SetExecutionFailedState(executionId, $"{exception?.Message}\n{exception?.StackTrace}");
-    }
-    
-    /// <summary>
-    /// Schedules a job on the thread pool.
-    /// </summary>
-    internal async Task<ScheduleJobResult> ScheduleJob(int id, string arguments)
-    {
-        var job = await _storage.GetJobById(id);
-        if (job is null) return ScheduleJobResult.NotFound;
-
-        if (arguments == string.Empty && job.Arguments.Count != 0) return ScheduleJobResult.InvalidArguments;
-
-        if (arguments == string.Empty)  
-        {
-            var execution = await _storage.GetExecutionByJobId(id);
-            if (execution == null) return ScheduleJobResult.NotFound;
-            
-            var executionWithJob = _jobMapper.GetTaskForExecutions([execution]).First();
-            await Enqueue(executionWithJob);
-            return ScheduleJobResult.Scheduled;
-        }
+        var sb = new StringBuilder();
+        exceptions.ForEach(e => sb.AppendLine($"{e.Message}\n{e.StackTrace}"));
+        var errorMessage = sb.ToString();
         
-        // TODO parse arguments for the method and clone a job!
-        
-        return ScheduleJobResult.Scheduled;
+        await _storage.SetExecutionFailedState(executionId, errorMessage);
     }
 
     private async Task Enqueue(ExecutionWithJob executionWithJob)

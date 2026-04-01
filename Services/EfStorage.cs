@@ -67,7 +67,7 @@ public class EfStorage : IStorage
         });
     }
 
-    public async Task UpdateExecutionState(int executionId, ExecutionState newState)
+    public async Task UpdateExecutionState(int executionId, int retryCount, ExecutionState newState)
     {
         await _dbContextProvider.WithContext(async context =>
         {
@@ -89,6 +89,7 @@ public class EfStorage : IStorage
             }
         
             execution.State = newState;
+            execution.RetryCount = retryCount;
             context.Update(execution);
             await context.SaveChangesAsync();
         
