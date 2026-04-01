@@ -21,4 +21,9 @@
 
 .grid.execution-information{
     grid-template-columns: 33% 66%;
+    height: 400px;
+}
+
+.clickable-row {
+    cursor: pointer;
 }

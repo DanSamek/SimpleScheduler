@@ -13,21 +13,19 @@
         <th>Method name</th>
         <th>Recurrent</th>
         <th>Next execution time</th>
-        <th>Detail</th>
     </tr>
     </thead>
 
     <tbody>
     @foreach (var job in Model.JobItems)
     {
-        <tr id="job-@job.Id">
+        <tr id="job-@job.Id" class="clickable-row" data-href="/simple-scheduler/jobs/@job.Id">
             <td class="key">@job.Key</td>
             <td class="type">@job.Type</td>
             <td class="method-name">@job.MethodName</td>
             <td class="is-recurrent">@job.IsRecurrent</td>
             <td class="next-execution-time">@job.NextExecutionTime</td>
-            <td class="detail"><a target="_blank" href="/simple-scheduler/jobs/@job.Id">Click</a></td>
-         </tr>
+        </tr>
     }
     </tbody>
 </table>

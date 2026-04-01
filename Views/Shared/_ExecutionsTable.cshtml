@@ -14,14 +14,13 @@
         <th>State</th>
         <th>Started</th>
         <th>Ended</th>
-        <th>Detail</th>
     </tr>
     </thead>
 
     <tbody>
     @foreach (var info in Model)
     {
-        <tr id="job-@info.Id">
+        <tr id="job-@info.Id" class="clickable-row" data-href="/simple-scheduler/executions/@info.Id">
             @if (shouldRenderJobKey)
             {
                 <td class="key">@info.Key</td>
@@ -29,8 +28,7 @@
             <td class="state"><span class="tag @info.State">@info.State</span></td>
             <td class="start-time">@info.Started</td>
             <td class="end-time">@info.Ended</td>
-            <td class="detail"><a target="_blank" href="/simple-scheduler/executions/@info.Id">Click</a></td>
-        </tr>
+         </tr>
     }
     </tbody>
 </table>
