@@ -7,14 +7,13 @@ builder.Services.AddDbContext<SimpleSchedulerContext>(dbOptions => dbOptions.Use
 
 builder.Services.AddSimpleScheduler(options =>
 {
-    options.NumberOfThreads = 2;
+    options.NumberOfThreads = 1;
     options.DbContextType = typeof(SimpleSchedulerContext);
     options.User = new SimpleSchedulerUser
     {
         Username = "user",
         Password = "12345678"
     };
-    options.RetryCount = 5;
 });
 
 // Force to the DI container.
@@ -27,13 +26,15 @@ app.UseSimpleScheduler();
 await Jobs.AddInstantJob(
     new JobInfoBuilder<Test>()
         .SetJob((t, c) => t.Job(c))
-        .SetKey("INSANE_JOB")
+        .SetKey("INSTANT_JOB")
         .Build(),
     new ArgumentBuilder()
         .SetData(new Test.EntityB(new Test.EntityA(1,2,3), 4))
+        /*
         .SetRecurrence(TimeSpan.FromHours(24))
         .SetDelay(TimeSpan.FromHours(1))
-        .SetRetrySchedule(TimeSpan.FromMinutes(5), 10)
+        */
+        .SetRetrySchedule(TimeSpan.FromMinutes(5), 2)
         .Build()
 );
 
@@ -43,8 +44,10 @@ class Test
 {
     public async Task Job(SimpleSchedulerJobContext c)
     {
-        var data = c.GetData<int>();
-        await Task.Delay(data * 5);
+        var data = c.GetData<EntityB>()!;
+        await Task.Delay(data.b * 1000);
+        throw new Exception("Test");
+        
     }
     
     public async Task RunException(SimpleSchedulerJobContext c)

@@ -10,7 +10,7 @@ public class SimpleSchedulerContext : DbContext
     /// </summary>
     public SimpleSchedulerContext(DbContextOptions<SimpleSchedulerContext> options)
         : base(options) { }
-
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.AddSimpleScheduler();
@@ -22,7 +22,16 @@ public static class ModelBuilderExtensions
     public static void AddSimpleScheduler(this ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Execution>();
-        modelBuilder.Entity<Job>();
+        modelBuilder.Entity<Job>()
+            .HasOne(j => j.JobInfo)
+            .WithOne(j => j.Job)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Job>()
+            .HasOne(j => j.JobSettings)
+            .WithOne(j => j.Job)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         modelBuilder.Entity<Token>();
     }
 }

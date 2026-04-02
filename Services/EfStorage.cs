@@ -51,7 +51,7 @@ public class EfStorage : IStorage
             }
         
             var executions = jobsToRun
-                .Select(job => new Execution { Job = job } )
+                .Select(job => new Execution { Job = job, MaxRetryCount = job.JobSettings.Retries.Length } )
                 .ToList();
 
             context.Set<Execution>().AddRange(executions);
@@ -66,7 +66,34 @@ public class EfStorage : IStorage
         });
     }
 
-    public async Task UpdateExecutionState(int executionId, int retryCount, ExecutionState newState)
+    /// <inheritdoc />
+    public async Task<List<Execution>> ExecutionsToRetry()
+    {
+        return await _dbContextProvider.WithContext(context =>
+        {
+            var now = DateTime.UtcNow;
+            var executions = context.Set<Execution>()
+                .Where(e => e.State == ExecutionState.WaitingForRetry && e.RetryTime < now)
+                .ToList();
+
+            var requestedJobIds = executions
+                .Select(e => e.JobId);
+
+            var jobs = context.Set<Job>()
+                .Include()
+                .Where(j => requestedJobIds.Contains(j.Id))
+                .ToDictionary(j => j.Id, j => j);
+
+            foreach (var execution in executions)
+            {
+                execution.Job = jobs[execution.JobId];
+            }
+            return Task.FromResult(executions);
+        });
+    }
+    
+    /// <inheritdoc />
+    public async Task UpdateExecutionState(int executionId, ExecutionState newState)
     {
         await _dbContextProvider.WithContext(async context =>
         {
@@ -75,20 +102,21 @@ public class EfStorage : IStorage
             var execution = executions
                 .Include(e => e.Job)
                 .FirstOrDefault(e => e.Id == executionId);
-        
-            if (execution is null) return;
 
-            if (newState == ExecutionState.Running)
-            {
-                execution.Started = DateTime.UtcNow;
-            }
-            else if (newState == ExecutionState.Ended)
-            {
-                execution.Ended = DateTime.UtcNow;
-            }
-        
+            if (execution is null) return;
+            
+            var jobSettings = context.Set<JobSettings>()
+                .FirstOrDefault(s => execution.Job != null && s.JobId == execution.Job.Id);
+
+            var jobInfo = context.Set<JobInfo>()
+                .FirstOrDefault(s => execution.Job != null && s.JobId == execution.Job.Id);
+            
+            if (newState == ExecutionState.Running) execution.Started = DateTime.UtcNow;
+            else if (newState == ExecutionState.Ended) execution.Ended = DateTime.UtcNow;
             execution.State = newState;
-            execution.RetryCount = retryCount;
+            execution.Job!.JobInfo = jobInfo!;
+            execution.Job!.JobSettings = jobSettings!;
+            
             context.Update(execution);
             await context.SaveChangesAsync();
         
@@ -141,14 +169,23 @@ public class EfStorage : IStorage
     {
         return await _dbContextProvider.WithContext(context =>
         {
-            var nearestExecutionTime = context.Set<Job>()
+            var nearestJobExecutionTime = context.Set<Job>()
                 .OrderBy(j => j.NextExecutionTime)
                 .Select(j => j.NextExecutionTime)
                 .FirstOrDefault();
-
+            
+            var nearestRetryJobExecutionTime = context.Set<Execution>()
+                .Where(e => e.State == ExecutionState.WaitingForRetry)
+                .OrderBy(e => e.RetryTime)
+                .Select(j => j.RetryTime)
+                .FirstOrDefault();
+            
             var now = DateTime.UtcNow;
-
-            var result = nearestExecutionTime - now;
+            var smallerTime = nearestJobExecutionTime < nearestRetryJobExecutionTime
+                ? nearestJobExecutionTime
+                : nearestRetryJobExecutionTime;
+            
+            var result = smallerTime - now;
             return Task.FromResult(result);
         });
     }
@@ -275,6 +312,42 @@ public class EfStorage : IStorage
                 .FirstOrDefault(j => j.Id == id);
             
             return Task.FromResult(job);
+        });
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> CanBeRetried(int executionId)
+    {
+        return await _dbContextProvider.WithContext(context =>
+        {
+            var execution = context.Set<Execution>()
+                .AsNoTracking()
+                .Include(e => e.Job)
+                .FirstOrDefault(e => e.Id == executionId);
+            
+            return Task.FromResult(execution != null && execution.RetryCount != execution.MaxRetryCount);
+        });
+    }
+
+    /// <inheritdoc />
+    public async Task RetryExecution(int executionId)
+    {
+        await _dbContextProvider.WithContext(context =>
+        {
+            var execution = context.Set<Execution>()
+                .Include(e => e.Job)
+                .ThenInclude(j => j!.JobSettings)
+                .FirstOrDefault(e => e.Id == executionId);
+
+            if (execution == null) return Task.CompletedTask;
+            
+            var increment = execution.Job!.JobSettings.Retries[execution.RetryCount];
+            execution.RetryTime = execution.RetryTime.Add(increment);
+            execution.State = ExecutionState.WaitingForRetry;
+            execution.RetryCount++;
+
+            context.SaveChanges();
+            return Task.CompletedTask;
         });
     }
 }

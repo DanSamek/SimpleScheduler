@@ -1,4 +1,3 @@
-using System.Text;
 using SimpleScheduler.Entities;
 using SimpleScheduler.Mapper;
 using SimpleScheduler.Services;
@@ -41,7 +40,10 @@ public class Scheduler
         {
             try
             {
+                
                 var executions = await _storage.JobsToRun();
+                var retryExecutions = await _storage.ExecutionsToRetry();
+                
                 var executionsWithJobs = _jobMapper.GetTaskForExecutions(executions);
 
                 foreach (var execution in executionsWithJobs)
@@ -83,26 +85,31 @@ public class Scheduler
     
     private async Task OnEnqueued(int executionId)
     {
-        await _storage.UpdateExecutionState(executionId, 0, ExecutionState.Queued);
+        await _storage.UpdateExecutionState(executionId, ExecutionState.Queued);
     }
     
-    internal async Task OnRunning(int executionId, int retryCount)
+    internal async Task OnRunning(int executionId)
     {
-        await _storage.UpdateExecutionState(executionId, retryCount, ExecutionState.Running);
+        await _storage.UpdateExecutionState(executionId, ExecutionState.Running);
     }
     
-    internal async Task OnEnded(int executionId, int retryCount)
+    internal async Task OnEnded(int executionId)
     {
-        await _storage.UpdateExecutionState(executionId, retryCount, ExecutionState.Ended);
+        await _storage.UpdateExecutionState(executionId, ExecutionState.Ended);
     }
 
-    public async Task OnException(int executionId, List<Exception> exceptions)
+    public async Task OnException(int executionId, Exception exception)
     {
-        var sb = new StringBuilder();
-        exceptions.ForEach(e => sb.AppendLine($"{e.Message}\n{e.StackTrace}"));
-        var errorMessage = sb.ToString();
-        
-        await _storage.SetExecutionFailedState(executionId, errorMessage);
+        var canBeRetried = await _storage.CanBeRetried(executionId);
+        if (canBeRetried)
+        {
+            await _storage.RetryExecution(executionId);
+        }
+        else
+        {
+            var errorMessage = $"{exception.Message}\n{exception.StackTrace}";
+            await _storage.SetExecutionFailedState(executionId, errorMessage);   
+        }
     }
 
     private async Task Enqueue(ExecutionWithJob executionWithJob)

@@ -10,7 +10,7 @@
     var title = $"{job!.Type}.{job.MethodName}";
     var errorMessage = string.IsNullOrEmpty(execution.Error) ? "" : $"\n// Got an error/errors:\n\n/* {execution.Error} */";
     var codeText = "// Executed code\n"
-                   + (execution.Job?.Call ?? "")
+                   + $"{execution.Job?.Type}.{execution.Job?.MethodName}"
                    + errorMessage;
     
     Layout = "_Layout";

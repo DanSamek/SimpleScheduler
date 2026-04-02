@@ -9,7 +9,7 @@ public class ThreadPool
 {
     private readonly Worker[] _workers;
     private readonly Channel<WorkerData>[] _jobChannels;
-    public ThreadPool(int numberOfWorkers, int retryCount)
+    public ThreadPool(int numberOfWorkers)
     {
         _jobChannels = new Channel<WorkerData>[numberOfWorkers];
 
@@ -21,7 +21,7 @@ public class ThreadPool
         _workers = new Worker[numberOfWorkers];
         for (var i = 0; i < numberOfWorkers; i++)
         {
-            _workers[i] = new Worker(_jobChannels[i].Reader, i, retryCount);
+            _workers[i] = new Worker(_jobChannels[i].Reader, i);
         }
     }
 

@@ -16,34 +16,29 @@ public class JobMapper : IJobMapper
     
     public IEnumerable<ExecutionWithJob> GetTaskForExecutions(IEnumerable<Execution> executions)
     {
+        using var scope = _scopeFactory.CreateScope();
+        
         var result = new List<ExecutionWithJob>();
         foreach (var execution in executions)
         {
-            if (execution.Job == null)
-            {
-                throw new NullReferenceException("Job is null - not included.");
-            }
+            if (execution.Job == null) throw new NullReferenceException("Job is null - not included.");
 
             var info = execution.Job.JobInfo;
             var typeName = info.Type;
             var methodName = info.MethodName;
 
-            using var scope = _scopeFactory.CreateScope();
             var type = Type.GetType(typeName);
             
             var service = scope.ServiceProvider.GetService(type!);
             var method = service?.GetType().GetMethod(methodName);
 
-            if (method == null)
-            {
-                throw new NullReferenceException($"Could not find method {methodName} in type {typeName}.");
-            }
-            /*
-             TODO -- create context.
-            var arguments = execution.Job.CreateArguments();
-            var executionWithJob = new ExecutionWithJob(execution, method, service, arguments);
+            if (method == null) throw new NullReferenceException($"Could not find method {methodName} in type {typeName}.");
+
+            var data = execution.Job.JobSettings.DeserializeData();
+            var context = new SimpleSchedulerJobContext(data,execution.RetryCount); 
+            
+            var executionWithJob = new ExecutionWithJob(execution, method, service, [context]);
             result.Add(executionWithJob);
-            */
         }
         
         return result;

@@ -20,7 +20,7 @@ public interface IStorage
     /// <summary>
     /// Updates state of the execution under a certain key.
     /// </summary>
-    Task UpdateExecutionState(int executionId, int retryCount, ExecutionState newState);
+    Task UpdateExecutionState(int executionId, ExecutionState newState);
     
     /// <summary>
     /// Updates an execution's state to a failed. 
@@ -81,4 +81,19 @@ public interface IStorage
     /// Returns job by id with loaded parameters.
     /// </summary>
     Task<Job?> GetJobById(int id);
+
+    /// <summary>
+    /// If execution can be retried.
+    /// </summary>
+    Task<bool> CanBeRetried(int executionId);
+
+    /// <summary>
+    /// Updates state of the execution -- to be again scheduled. 
+    /// </summary>
+    Task RetryExecution(int executionId);
+
+    /// <summary>
+    /// Returns all executions to retry.
+    /// </summary>
+    Task<List<Execution>> ExecutionsToRetry();
 }

@@ -11,6 +11,11 @@ public class Execution : DoId, IDto<ExecutionDto>
     public Job? Job { get; set; }
     
     /// <summary>
+    /// Id of the job that is executed. 
+    /// </summary>
+    public int JobId { get; set; }
+    
+    /// <summary>
     /// State of the job execution.
     /// </summary>
     public ExecutionState State { get; set; } = ExecutionState.Created;
@@ -40,6 +45,16 @@ public class Execution : DoId, IDto<ExecutionDto>
     /// </summary>
     public int RetryCount { get; set; }
     
+    /// <summary>
+    /// Maximum number of retry tries.
+    /// </summary>
+    public int MaxRetryCount { get; set; }
+    
+    /// <summary>
+    /// Rerun time of the execution - when its retried, can be delayed.
+    /// </summary>
+    public DateTime RetryTime { get; set; }
+    
     /// <inheritdoc /> 
     public ExecutionDto? ToDto(int recursionDepth)
     {
@@ -49,6 +64,8 @@ public class Execution : DoId, IDto<ExecutionDto>
         const string NOT_ENDED = "Not ended";
         
         return new ExecutionDto(Id, Job?.JobInfo.Key, State.ToString(),
-            Started?.ToString(CultureInfo.InvariantCulture) ?? NOT_STARTED, Ended?.ToString(CultureInfo.InvariantCulture) ?? NOT_ENDED, Error, RetryCount, Job?.ToDto(recursionDepth - 1));
+            Started?.ToString(CultureInfo.InvariantCulture) ?? NOT_STARTED,
+            Ended?.ToString(CultureInfo.InvariantCulture) ?? NOT_ENDED, Error, RetryCount,
+            Job?.ToDto(recursionDepth - 1));
     }
 }

@@ -1,4 +1,4 @@
-using System.Text.Json;
+using System.Globalization;
 using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Entities;
@@ -27,7 +27,9 @@ public class Job : DoId, IDto<JobDto>
     
     public JobDto? ToDto(int recursionDepth)
     {
-        throw new NotImplementedException();
+        if (recursionDepth == 0) return null;
+        return new JobDto(Id, JobInfo.Key ?? $"{JobInfo.Type}.{JobInfo.MethodName}", JobInfo.Type, JobInfo.MethodName, false,
+            NextExecutionTime.ToString(CultureInfo.InvariantCulture), Executions.Select(e => e.ToDto(recursionDepth - 1)).ToList());
     }
     
     internal void MoveExecutionTime()
