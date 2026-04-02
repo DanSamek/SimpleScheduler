@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using SimpleScheduler.ContextProvider;
 using SimpleScheduler.Entities;
 using SimpleScheduler.Hub;
@@ -38,12 +39,10 @@ public class EfStorage : IStorage
         return await _dbContextProvider.WithContext(async context =>
         {
             var jobs = context.Set<Job>();
-        
             var now = DateTime.UtcNow;
             var jobsToRun = jobs
-                .Include(j => j.Arguments)
-                .ThenInclude(a => a.Arguments)
-                .Where(j => j.NextExecutionTime <= now && (j.Recurrence != null || j.Executions.Count == 0))
+                .Include()
+                .Where(j => j.NextExecutionTime <= now) // TODO logic changed!
                 .ToArray();
         
             foreach (var job in jobsToRun)
@@ -170,8 +169,7 @@ public class EfStorage : IStorage
         return await _dbContextProvider.WithContext(async context =>
         {
             var job = context.Set<Job>()
-                .Include(j => j.Arguments)
-                .ThenInclude(a => a.Arguments)
+                .Include(j => j.JobInfo)
                 .FirstOrDefault(j => j.Id == jobId);
             
             if (job is null) return null;
@@ -192,8 +190,7 @@ public class EfStorage : IStorage
             var execution = context.Set<Execution>()
                 .AsNoTracking()
                 .Include(e => e.Job)
-                .ThenInclude(j => j!.Arguments)
-                .ThenInclude(a => a.Arguments)
+                .ThenInclude(j => j!.JobInfo)
                 .FirstOrDefault(j => j.Id == id);
 
             return Task.FromResult(execution);
@@ -234,8 +231,7 @@ public class EfStorage : IStorage
         {
             var job = context.Set<Job>()
                 .AsNoTracking()
-                .Include(j => j.Arguments)
-                .ThenInclude(a => a.Arguments)
+                .Include()
                 .FirstOrDefault(e => e.Id == id);
             
             var executions = context.Set<Execution>()
@@ -275,10 +271,20 @@ public class EfStorage : IStorage
         {
             var job = context.Set<Job>()
                 .AsNoTracking()
-                .Include(j => j.Arguments)
+                .Include()
                 .FirstOrDefault(j => j.Id == id);
-
+            
             return Task.FromResult(job);
         });
+    }
+}
+
+public static class EfExtensions
+{
+    public static IIncludableQueryable<Job, JobSettings> Include(this IQueryable<Job> queryable)
+    {
+        return queryable
+            .Include(j => j.JobInfo)
+            .Include(j => j.JobSettings);
     }
 }

@@ -6,8 +6,9 @@ namespace SimpleScheduler.Entities;
 public enum ExecutionState
 {
     Created = 0,
-    Queued = 1,
-    Running = 2,
-    Ended = 3,
-    Failed = 4,
+    WaitingForRetry = 1,
+    Queued = 2,
+    Running = 3,
+    Ended = 4,
+    Failed = 5,
 }

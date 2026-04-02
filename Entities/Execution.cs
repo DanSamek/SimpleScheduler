@@ -48,7 +48,7 @@ public class Execution : DoId, IDto<ExecutionDto>
         const string NOT_STARTED = "Not started";
         const string NOT_ENDED = "Not ended";
         
-        return new ExecutionDto(Id, Job?.Key, State.ToString(),
+        return new ExecutionDto(Id, Job?.JobInfo.Key, State.ToString(),
             Started?.ToString(CultureInfo.InvariantCulture) ?? NOT_STARTED, Ended?.ToString(CultureInfo.InvariantCulture) ?? NOT_ENDED, Error, RetryCount, Job?.ToDto(recursionDepth - 1));
     }
 }

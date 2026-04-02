@@ -17,97 +17,29 @@ public static class Jobs
     /// </summary>
     public static void SetStorage(IStorage storage) => _storage = storage;
     
-    
     /// <summary>
     /// Executes a job once.
     /// </summary>
-    public static async Task<int> AddInstantJob<T, TData>(Job<T> job, Arguments<TData> arguments)
+    public static async Task AddInstantJob(JobInfo jobInfo, JobSettings jobSettings)
     {
+        var job = new Job
+        {
+            JobInfo = jobInfo,
+            JobSettings = jobSettings
+        };
+        await _storage.AddJob(job);
+        
+        /*
         var a = JsonSerializer.Serialize(job);
-        var b = JsonSerializer.Serialize(arguments);
+        var b = JsonSerializer.Serialize(jobSettings);
 
-        var x = typeof(Job<>).MakeGenericType(typeof(T));
-        var aa = JsonSerializer.Deserialize(a, x);
-        
-        var y = typeof(Arguments<>).MakeGenericType(typeof(TData));
-        var bb = JsonSerializer.Deserialize(b, y);
-        
-        await Task.CompletedTask;
-        throw new NotImplementedException();
-    }
-    
-    // Old interface below!
-    
-    /// <summary>
-    /// Executes a job once.
-    /// </summary>
-    public static async Task<int> AddInstantJob<T>(Expression<Func<T, Task>> job, TimeSpan? delay = null, string? key = null)
-    {
-        return await AddJob(job, delay: delay, key: key);
-    }
+        var aa = (JobInfo?)JsonSerializer.Deserialize(a, typeof(JobInfo));
+        var bb = (JobSettings?)JsonSerializer.Deserialize(b, typeof(JobSettings));
 
-    /// <summary>
-    /// Executes a job repeatedly.
-    /// </summary>
-    public static async Task<int> AddRecurringJob<T>(Expression<Func<T, Task>> job, TimeSpan recurrence, TimeSpan? delay = null, string? key = null)
-    {
-        return await AddJob(job, recurrence, delay, key);
+        var objectData = bb!.Data!.ToString();
+        var bbb = JsonSerializer.Deserialize(objectData!, Type.GetType(bb.DataType!)!);
+        */
     }
-
-    private static async Task<int> AddJob<T>(Expression<Func<T, Task>> job, TimeSpan? recurrence = null, TimeSpan? delay = null, string? key = null)
-    {
-        if (job.Body is not MethodCallExpression methodCall)
-        {
-            throw new NotSupportedException("Expression is not supported, only lambda method call is supported.");
-        }
-        var fullName = typeof(T).FullName;
-        if (fullName == null)
-        {
-            throw new NullReferenceException("Type name is null");
-        }
-
-        var call = $"{fullName}.{job.Body.ToString().Split(".").Last()};";
-        
-        var arguments = ParseArguments(methodCall.Arguments)
-            .Select(a => a.Flatten())
-            .ToList();
-        
-        var methodName = methodCall.Method.Name;
-        var instance = new Job(fullName, methodName, arguments, call, key, recurrence, delay);
-        var result = await _storage.AddJob(instance);
-        return result.Id;
-    }
-
-    private static List<Argument> ParseArguments(IEnumerable<Expression> arguments)
-    {
-        var result = arguments
-            .Select(ParseArgument)
-            .ToList();
-        
-        return result;
-    }
-
-    private static Argument ParseArgument(Expression expression)
-    {
-        var instance = new Argument();
-        switch (expression)
-        {
-            case ConstantExpression constantExpression:
-                instance.Type = constantExpression.Type.FullName!;
-                instance.Value = JsonSerializer.Serialize(constantExpression.Value);
-                return instance;
-            case NewExpression newExpression:
-                instance.Type = newExpression.Type.FullName!;
-                instance.Arguments = newExpression.Arguments
-                    .Select(ParseArgument)
-                    .ToList();
-                instance.ArgumentCount = instance.Arguments.Count;
-                return instance;
-            default:
-                throw new NotSupportedException("Expression is not supported by simple scheduler.");
-        }
-    }
-    
 }
 
 public interface IValidatable<out T>
@@ -115,82 +47,50 @@ public interface IValidatable<out T>
     T Validate();
 }
 
-public class Arguments
+public class JobSettings
 {
     public TimeSpan Recurrence { get; set; }
     
     public TimeSpan Delay { get; set; }
 
     public RetrySchedule RetrySchedule { get; set; } = new();
+    
+    public string? Data { get; set; }
+
+    public string? DataType { get; set; }
 }
 
-
-public class Arguments<T> : Arguments, IValidatable<Arguments<T>>
-{
-    public T? Data { get; set; }
-
-    public Arguments<T> Validate()
-    {
-        return Data == null ? throw new NullReferenceException("Data is null") : this;
-    }
-}
 
 public class RetrySchedule
 {
     public TimeSpan[] Retries { get; set; } = [];
 }
 
-
-public class ArgumentBuilder<T>
-{
-    private readonly Arguments<T> _arguments = new();
-
-    public ArgumentBuilder<T> SetData(T data)
-    {
-        _arguments.Data = data;
-        return this;
-    }
-    
-    public Arguments<T> Build()
-        => _arguments.Validate();
-
-    public ArgumentBuilder<T> SetRecurrence(TimeSpan recurrence)
-        => LambdaReturn(() => _arguments.Recurrence = recurrence);
-
-    public ArgumentBuilder<T> SetDelay(TimeSpan delay)
-        => LambdaReturn(() => _arguments.Delay = delay);
-
-    public ArgumentBuilder<T> SetRetrySchedule(params TimeSpan[] args)
-        => LambdaReturn(() => _arguments.RetrySchedule.Retries = args);
-    
-    public ArgumentBuilder<T> SetRetrySchedule(TimeSpan retryTime, int count)
-        => SetRetrySchedule(Enumerable.Range(0, count).Select(_ => retryTime).ToArray());
-
-    private ArgumentBuilder<T> LambdaReturn(Action action)
-    {
-        action();
-        return this;
-    }
-}
-
 public class ArgumentBuilder
 {
-    private readonly Arguments _arguments = new();
+    private readonly JobSettings _jobSettings = new();
     
-    public Arguments Build()
-        => _arguments;
+    public JobSettings Build()
+        => _jobSettings;
 
     public ArgumentBuilder SetRecurrence(TimeSpan recurrence)
-        => LambdaReturn(() => _arguments.Recurrence = recurrence);
+        => LambdaReturn(() => _jobSettings.Recurrence = recurrence);
 
     public ArgumentBuilder SetDelay(TimeSpan delay)
-        => LambdaReturn(() => _arguments.Delay = delay);
+        => LambdaReturn(() => _jobSettings.Delay = delay);
 
     public ArgumentBuilder SetRetrySchedule(params TimeSpan[] args)
-        => LambdaReturn(() => _arguments.RetrySchedule.Retries = args);
+        => LambdaReturn(() => _jobSettings.RetrySchedule.Retries = args);
     
     public ArgumentBuilder SetRetrySchedule(TimeSpan retryTime, int count)
         => SetRetrySchedule(Enumerable.Range(0, count).Select(_ => retryTime).ToArray());
+    
+    public ArgumentBuilder SetData<T>(T data)
+    {
+        _jobSettings.DataType = typeof(T).FullName;
+        _jobSettings.Data = JsonSerializer.Serialize(data);
+        return this;
+    }
 
     private ArgumentBuilder LambdaReturn(Action action)
     {
@@ -199,47 +99,79 @@ public class ArgumentBuilder
     }
 }
 
-
-public class Job<T> : IValidatable<Job<T>>
+public class JobInfo : IValidatable<JobInfo>
 {
-    public string? Name { get; set; }
+    public string Type { get; set; } = null!;
+
+    public string MethodName { get; set; } = null!;
     
     public string? Key { get; set; }
     
-    public Job<T> Validate()
+    public JobInfo Validate()
     {
-        return Name == null ? throw new NullReferenceException("Name is null") : this;
+        if (Type == null)
+        {
+            throw new NullReferenceException($"{nameof(Type)} name is null");
+        }
+        if (MethodName == null)
+        {
+            throw new NullReferenceException($"{nameof(MethodName)} name is null");
+        }
+
+        return this;
     }
 }
 
 public class SimpleSchedulerJobContext
 {
+    private readonly object? _data;
     
+    /// <summary>
+    /// .Ctor
+    /// </summary>
+    public SimpleSchedulerJobContext(object? data, int retryCount)
+    {
+        _data = data;
+        RetryCount = retryCount;
+    }
+    
+    /// <summary>
+    /// Returns data that were added for the job.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T? GetData<T>() => (T?)_data;
+    
+    /// <summary>
+    /// How many times the job is retried.
+    /// </summary>
+    public int RetryCount { get; }
 }
 
-public class JobBuilder<T>
+public class JobInfoBuilder<T>
 {
-    private Job<T> _job = new();
+    private readonly JobInfo _job = new();
 
-    public JobBuilder<T> SetJob(Expression<Func<T, SimpleSchedulerJobContext, Task>> selector)
+    public JobInfoBuilder<T> SetJob(Expression<Func<T, SimpleSchedulerJobContext, Task>> selector)
         => LambdaReturn(() =>
         {
             if (selector is LambdaExpression { Body: MethodCallExpression methodCallExpression })
             {
-                _job.Name = methodCallExpression.Method.Name;
+                _job.MethodName = methodCallExpression.Method.Name;
+                _job.Type = typeof(T).FullName!;
                 return;
             }
             throw new NotSupportedException("Expression is not supported by simple scheduler.");
         });
         
     
-    public JobBuilder<T> SetKey(string key)
+    public JobInfoBuilder<T> SetKey(string key)
         => LambdaReturn(() => _job.Key = key);
     
-    public Job<T> Build()
+    public JobInfo Build()
         => _job;
     
-    private JobBuilder<T> LambdaReturn(Action action)
+    private JobInfoBuilder<T> LambdaReturn(Action action)
     {
         action();
         return this;

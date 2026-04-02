@@ -9,7 +9,7 @@ public interface IStorage
 {
     /// <summary>
     /// Add job to the storage.
-    /// </summary>
+    /// </summary>  
     Task<Job> AddJob(Job job);
     
     /// <summary>

@@ -1,5 +1,4 @@
-using System.Globalization;
-using System.Text;
+using System.Text.Json;
 using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Entities;
@@ -7,41 +6,14 @@ namespace SimpleScheduler.Entities;
 public class Job : DoId, IDto<JobDto>
 {
     /// <summary>
-    /// Ctor
+    /// Specific info about the job.
     /// </summary>
-    public Job(string type, string methodName, List<Argument> arguments, string call, string? key = null, TimeSpan? recurrence = null, TimeSpan? delay = null)
-    {
-        Key = key ?? $"{type}.{methodName}";
-        Recurrence = recurrence;
-        NextExecutionTime = DateTime.UtcNow.Add(delay ?? TimeSpan.Zero);
-        Type = type;
-        MethodName = methodName;
-        Arguments = arguments;
-        Call = call;
-    }
-
-    public Job()
-    {
-        Key = "";
-        MethodName = "";
-        Type = "";
-        Call = "";
-    }
+    public required JobInfo JobInfo { get; set; }
     
     /// <summary>
-    /// Key of the job.
+    /// Settings for the job. 
     /// </summary>
-    public string Key { get; set; }
-    
-    /// <summary>
-    /// How is lambda called - used for UI.
-    /// </summary>
-    public string Call { get; set; }
-    
-    /// <summary>
-    /// Recurrence time for the job.
-    /// </summary>
-    public TimeSpan? Recurrence { get; set; }
+    public required JobSettings JobSettings { get; set; }
     
     /// <summary>
     /// Next execution time of the job.
@@ -49,55 +21,26 @@ public class Job : DoId, IDto<JobDto>
     public DateTime NextExecutionTime { get; set; }
 
     /// <summary>
-    /// All executions of the job.
+    /// List of all executions for the job.
     /// </summary>
     public List<Execution> Executions { get; set; } = [];
     
-    /// <summary>
-    /// Type of the class in the job.
-    /// </summary>
-    public string Type { get; set; }
+    public JobDto? ToDto(int recursionDepth)
+    {
+        throw new NotImplementedException();
+    }
     
-    /// <summary>
-    /// Method name of the class for which is job created.
-    /// </summary>
-    public string MethodName { get; set; }
-
-    /// <summary>
-    /// Arguments of the job.
-    /// </summary>
-    public List<Argument> Arguments { get; set; } = [];
-    
-    /// <summary>
-    /// Moves execution time for the recurrent job.
-    /// </summary>
     internal void MoveExecutionTime()
     {
-        if (Recurrence.HasValue)
+        // TODO
+        /*if (Recurrence.HasValue)
         {
             NextExecutionTime = NextExecutionTime.Add(Recurrence.Value);
-        }
+        }*/
     }
     
     /// <summary>
     /// If the job is recurrent.
     /// </summary>
-    private bool IsRecurrent() => Recurrence.HasValue;
-    
-    /// <inheritdoc /> 
-    public JobDto? ToDto(int recursionDepth)
-    {
-        if (recursionDepth == 0) return null;
-        
-        return new JobDto(Id, Key, Type,
-            MethodName, IsRecurrent(), 
-            IsRecurrent() ? NextExecutionTime.ToString(CultureInfo.InvariantCulture) : "No next execution",
-            Executions.Select(e => e.ToDto(recursionDepth - 1)).ToList(), Call);
-    }
-
-    internal object[] CreateArguments()
-    {
-        var result = Arguments.Select(a => a.CreateInstance()).ToArray(); 
-        return result;
-    }
+    private bool IsRecurrent() => false;
 }

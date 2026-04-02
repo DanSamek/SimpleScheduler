@@ -23,9 +23,10 @@ public class JobMapper : IJobMapper
             {
                 throw new NullReferenceException("Job is null - not included.");
             }
-            
-            var typeName = execution.Job.Type;
-            var methodName = execution.Job.MethodName;
+
+            var info = execution.Job.JobInfo;
+            var typeName = info.Type;
+            var methodName = info.MethodName;
 
             using var scope = _scopeFactory.CreateScope();
             var type = Type.GetType(typeName);
@@ -37,10 +38,12 @@ public class JobMapper : IJobMapper
             {
                 throw new NullReferenceException($"Could not find method {methodName} in type {typeName}.");
             }
-            
+            /*
+             TODO -- create context.
             var arguments = execution.Job.CreateArguments();
             var executionWithJob = new ExecutionWithJob(execution, method, service, arguments);
             result.Add(executionWithJob);
+            */
         }
         
         return result;
