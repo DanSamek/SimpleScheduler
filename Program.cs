@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimpleScheduler;
+using SimpleScheduler.Jobs;
+using SimpleScheduler.Scheduler;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,12 +30,10 @@ await Jobs.AddInstantJob(
         .SetJob((t, c) => t.Job(c))
         .SetKey("INSTANT_JOB")
         .Build(),
-    new ArgumentBuilder()
+    new JobSettingsBuilder()
         .SetData(new Test.EntityB(new Test.EntityA(1,2,3), 4))
-        /*
         .SetRecurrence(TimeSpan.FromHours(24))
         .SetDelay(TimeSpan.FromHours(1))
-        */
         .SetRetrySchedule(TimeSpan.FromMinutes(5), 2)
         .Build()
 );

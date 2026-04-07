@@ -34,15 +34,13 @@ public class Job : DoId, IDto<JobDto>
     
     internal void MoveExecutionTime()
     {
-        // TODO
-        /*if (Recurrence.HasValue)
-        {
-            NextExecutionTime = NextExecutionTime.Add(Recurrence.Value);
-        }*/
+        NextExecutionTime = JobSettings.Recurrence.HasValue 
+            ? NextExecutionTime.Add(JobSettings.Recurrence.Value) 
+            : DateTime.MaxValue;
     }
     
     /// <summary>
     /// If the job is recurrent.
     /// </summary>
-    private bool IsRecurrent() => false;
+    private bool IsRecurrent() => JobSettings.Recurrence.HasValue;
 }

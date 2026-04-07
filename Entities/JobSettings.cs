@@ -1,4 +1,5 @@
 using System.Text.Json;
+using SimpleScheduler.Jobs;
 
 namespace SimpleScheduler.Entities;
 

@@ -42,7 +42,7 @@ public class EfStorage : IStorage
             var now = DateTime.UtcNow;
             var jobsToRun = jobs
                 .Include()
-                .Where(j => j.NextExecutionTime <= now) // TODO logic changed!
+                .Where(j => j.NextExecutionTime <= now)
                 .ToArray();
         
             foreach (var job in jobsToRun)
@@ -54,7 +54,9 @@ public class EfStorage : IStorage
                 .Select(job => new Execution { Job = job, MaxRetryCount = job.JobSettings.Retries.Length } )
                 .ToList();
 
-            context.Set<Execution>().AddRange(executions);
+            context.Set<Execution>()
+                .AddRange(executions);
+            
             await context.SaveChangesAsync();
 
             foreach (var execution in executions)

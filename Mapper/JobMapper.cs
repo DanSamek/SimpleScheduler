@@ -1,4 +1,6 @@
 using SimpleScheduler.Entities;
+using SimpleScheduler.Jobs;
+using SimpleScheduler.Scheduler;
 
 namespace SimpleScheduler.Mapper;
 

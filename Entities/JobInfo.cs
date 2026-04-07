@@ -1,3 +1,5 @@
+using SimpleScheduler.Jobs;
+
 namespace SimpleScheduler.Entities;
 
 

@@ -49,7 +49,7 @@ public static class SimpleScheduler
         var scheduler = services.GetService<Scheduler.Scheduler>()!;
         var storage = services.GetService<IStorage>()!;
         
-        Jobs.SetStorage(storage);
+        Jobs.Jobs.SetStorage(storage);
         
         threadPool.Run();
         scheduler.Run();
