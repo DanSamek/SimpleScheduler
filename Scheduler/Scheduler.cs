@@ -10,7 +10,9 @@ public class Scheduler
     private readonly ThreadPool.ThreadPool _threadPool;
     private readonly IStorage _storage;
     private readonly IJobMapper _jobMapper;
-
+    
+    private readonly CancellationTokenSource _onEnqueueCancellationToken = new CancellationTokenSource();
+    
     /// <summary>
     /// .Ctor
     /// </summary>
@@ -40,11 +42,11 @@ public class Scheduler
         {
             try
             {
-                
-                var executions = await _storage.JobsToRun();
                 var retryExecutions = await _storage.ExecutionsToRetry();
+                var executions = await _storage.JobsToRun();
+                retryExecutions.AddRange(executions);
                 
-                var executionsWithJobs = _jobMapper.GetTaskForExecutions(executions);
+                var executionsWithJobs = _jobMapper.GetTaskForExecutions(retryExecutions);
 
                 foreach (var execution in executionsWithJobs)
                 {
@@ -54,7 +56,7 @@ public class Scheduler
                 var nearestTimeForNextJob = await _storage.NearestExecutionTimeForJob();
                 if (nearestTimeForNextJob.Ticks > 0)
                 {
-                    await Task.Delay(nearestTimeForNextJob);
+                    await Wait(nearestTimeForNextJob);
                 }
             }
             catch (Exception e)
@@ -67,6 +69,23 @@ public class Scheduler
         } 
     }
 
+    
+    static readonly TimeSpan _step = new TimeSpan(0xfffffffe - 1);
+    private async Task Wait(TimeSpan ts)
+    {
+        if (ts.Ticks < 0xfffffffe)
+        {
+            await Task.Delay(ts, _onEnqueueCancellationToken.Token);
+        }
+        while (ts.Ticks > 0)
+        {
+            await Task.Delay(_step, _onEnqueueCancellationToken.Token);
+            ts = ts.Subtract(_step);
+        }
+        
+        _onEnqueueCancellationToken.TryReset();   
+    }
+    
     private async Task RestoreState()
     {
         // TODO test it with not inmemory-storage!
@@ -98,12 +117,13 @@ public class Scheduler
         await _storage.UpdateExecutionState(executionId, ExecutionState.Ended);
     }
 
-    public async Task OnException(int executionId, Exception exception)
+    internal async Task OnException(int executionId, Exception exception)
     {
         var canBeRetried = await _storage.CanBeRetried(executionId);
         if (canBeRetried)
         {
             await _storage.RetryExecution(executionId);
+            await _onEnqueueCancellationToken.CancelAsync();
         }
         else
         {
@@ -117,5 +137,6 @@ public class Scheduler
         var data = new WorkerData(executionWithJob,this);
         await OnEnqueued(executionWithJob.Execution.Id);
         await _threadPool.EnqueueJob(data);
+        await _onEnqueueCancellationToken.CancelAsync();
     }
 }

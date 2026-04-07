@@ -22,6 +22,11 @@ public class SimpleSchedulerJobContext
     public T? GetData<T>() => (T?)_data;
     
     /// <summary>
+    /// Returns data that were added for the job without null checks.
+    /// </summary>
+    public T GetDataNotNull<T>() => ((T?)_data)!;
+    
+    /// <summary>
     /// How many times the job is retried.
     /// </summary>
     public int RetryCount { get; }

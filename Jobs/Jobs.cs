@@ -1,7 +1,4 @@
-using System.Linq.Expressions;
-using System.Text.Json;
 using SimpleScheduler.Entities;
-using SimpleScheduler.Scheduler;
 using SimpleScheduler.Services;
 
 namespace SimpleScheduler.Jobs;
@@ -16,18 +13,19 @@ public static class Jobs
     /// <summary>
     /// Sets a storage to use for jobs.
     /// </summary>
-    public static void SetStorage(IStorage storage) => _storage = storage;
+    internal static void SetStorage(IStorage storage) => _storage = storage;
     
     /// <summary>
-    /// Executes a job once.
+    /// Executes a job with the specified <see cref="UserJobInfo"/> and <see cref="UserJobSettings"/>.
     /// </summary>
-    public static async Task AddInstantJob(UserJobInfo userJobInfo, UserJobSettings userJobSettings)
+    public static async Task AddJob(UserJobInfo userJobInfo, UserJobSettings userJobSettings)
     {
         var job = new Job
         {
             JobInfo = new JobInfo(userJobInfo),
             JobSettings = new JobSettings(userJobSettings)
         };
+        job.NextExecutionTime = DateTime.UtcNow;
         
         // Move execution time for the job with delay value.
         if (userJobSettings.Delay.HasValue)

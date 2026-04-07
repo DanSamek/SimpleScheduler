@@ -181,6 +181,11 @@ public class EfStorage : IStorage
                 .OrderBy(e => e.RetryTime)
                 .Select(j => j.RetryTime)
                 .FirstOrDefault();
+
+            if (nearestRetryJobExecutionTime == default)
+                nearestRetryJobExecutionTime = DateTime.MaxValue;
+            if (nearestJobExecutionTime == default)
+                nearestJobExecutionTime = DateTime.MaxValue;
             
             var now = DateTime.UtcNow;
             var smallerTime = nearestJobExecutionTime < nearestRetryJobExecutionTime
@@ -197,7 +202,9 @@ public class EfStorage : IStorage
     {
         return await _dbContextProvider.WithContext(context =>
         {
-            var jobs = context.Set<Job>().ToList();
+            var jobs = context.Set<Job>()
+                .Include()
+                .ToList();
             return Task.FromResult(jobs);
         });
     }

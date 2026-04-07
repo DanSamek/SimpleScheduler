@@ -25,7 +25,7 @@ var app = builder.Build();
 
 app.UseSimpleScheduler();
 
-await Jobs.AddInstantJob(
+await Jobs.AddJob(
     new JobInfoBuilder<Test>()
         .SetJob((t, c) => t.Job(c))
         .SetKey("INSTANT_JOB")
@@ -33,7 +33,7 @@ await Jobs.AddInstantJob(
     new JobSettingsBuilder()
         .SetData(new Test.EntityB(new Test.EntityA(1,2,3), 4))
         .SetRecurrence(TimeSpan.FromHours(24))
-        .SetDelay(TimeSpan.FromHours(1))
+        .SetDelay(TimeSpan.FromMinutes(1))
         .SetRetrySchedule(TimeSpan.FromMinutes(5), 2)
         .Build()
 );
@@ -44,10 +44,9 @@ class Test
 {
     public async Task Job(SimpleSchedulerJobContext c)
     {
-        var data = c.GetData<EntityB>()!;
+        var data = c.GetDataNotNull<EntityB>();
         await Task.Delay(data.b * 1000);
         throw new Exception("Test");
-        
     }
     
     public async Task RunException(SimpleSchedulerJobContext c)
