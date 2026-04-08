@@ -21,7 +21,11 @@ public static class ModelBuilderExtensions
 {
     public static void AddSimpleScheduler(this ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Execution>();
+        modelBuilder.Entity<Execution>()
+            .HasMany(e => e.Errors)
+            .WithOne(e => e.Execution)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         modelBuilder.Entity<Job>()
             .HasOne(j => j.JobInfo)
             .WithOne(j => j.Job)
@@ -33,5 +37,6 @@ public static class ModelBuilderExtensions
             .OnDelete(DeleteBehavior.Cascade);
         
         modelBuilder.Entity<Token>();
+        modelBuilder.Entity<Error>();
     }
 }

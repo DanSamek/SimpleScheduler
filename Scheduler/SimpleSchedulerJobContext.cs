@@ -1,6 +1,8 @@
 namespace SimpleScheduler.Scheduler;
 
-
+/// <summary>
+/// Context for the job.
+/// </summary>
 public class SimpleSchedulerJobContext
 {
     private readonly object? _data;
@@ -17,8 +19,6 @@ public class SimpleSchedulerJobContext
     /// <summary>
     /// Returns data that were added for the job.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <returns></returns>
     public T? GetData<T>() => (T?)_data;
     
     /// <summary>

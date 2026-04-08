@@ -3,7 +3,7 @@ using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Entities;
 
-public class Job : DoId, IDto<JobDto>
+internal class Job : DoId, IDto<JobDto>
 {
     /// <summary>
     /// Specific info about the job.

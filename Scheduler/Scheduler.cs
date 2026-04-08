@@ -5,22 +5,26 @@ using SimpleScheduler.ThreadPool;
 
 namespace SimpleScheduler.Scheduler;
 
-public class Scheduler
+internal  class Scheduler
 {
     private readonly ThreadPool.ThreadPool _threadPool;
     private readonly IStorage _storage;
     private readonly IJobMapper _jobMapper;
+    private readonly ErrorLogger _errorLogger;
     
-    private readonly CancellationTokenSource _onEnqueueCancellationToken = new CancellationTokenSource();
+    private CancellationTokenSource _onEnqueueCancellationToken = new CancellationTokenSource();
+    private readonly SemaphoreSlim _cancellationTokenSemaphore = new SemaphoreSlim(1,1);
+    private readonly SemaphoreSlim _executionSemaphore = new SemaphoreSlim(1,1);
     
     /// <summary>
     /// .Ctor
     /// </summary>
-    public Scheduler(ThreadPool.ThreadPool threadPool, IStorage storage, IJobMapper jobMapper)
+    public Scheduler(ThreadPool.ThreadPool threadPool, IStorage storage, IJobMapper jobMapper, ErrorLogger errorLogger)
     {
         _threadPool = threadPool;
         _storage = storage;
         _jobMapper = jobMapper;
+        _errorLogger = errorLogger;
     }
 
     /// <summary>
@@ -53,18 +57,33 @@ public class Scheduler
                     await Enqueue(execution);
                 }
 
-                var nearestTimeForNextJob = await _storage.NearestExecutionTimeForJob();
+                await _executionSemaphore.WaitAsync();
+                TimeSpan nearestTimeForNextJob;
+                try
+                {
+                    nearestTimeForNextJob = await _storage.NearestExecutionTimeForJob();
+                }
+                finally
+                {
+                    _executionSemaphore.Release();
+                }
                 if (nearestTimeForNextJob.Ticks > 0)
                 {
                     await Wait(nearestTimeForNextJob);
                 }
+               
             }
             catch (Exception e)
             {
-                if (e is not ObjectDisposedException)
+                if (e is TaskCanceledException)
                 {
-                    Console.WriteLine(e);    
+                    Console.WriteLine("Waiting was canceled.");
                 }
+                else if (e is not ObjectDisposedException)
+                {
+                    Console.WriteLine(e);
+                }
+                
             }
         } 
     }
@@ -73,17 +92,31 @@ public class Scheduler
     static readonly TimeSpan _step = new TimeSpan(0xfffffffe - 1);
     private async Task Wait(TimeSpan ts)
     {
+        await _cancellationTokenSemaphore.WaitAsync();
+        try
+        {
+            if (_onEnqueueCancellationToken.IsCancellationRequested)
+            {
+                _onEnqueueCancellationToken = new CancellationTokenSource();
+                return;
+            }
+        }
+        finally
+        {
+            _cancellationTokenSemaphore.Release();
+        }
+        
         if (ts.Ticks < 0xfffffffe)
         {
             await Task.Delay(ts, _onEnqueueCancellationToken.Token);
+            return;
         }
         while (ts.Ticks > 0)
         {
             await Task.Delay(_step, _onEnqueueCancellationToken.Token);
             ts = ts.Subtract(_step);
-        }
+        }   
         
-        _onEnqueueCancellationToken.TryReset();   
     }
     
     private async Task RestoreState()
@@ -120,15 +153,33 @@ public class Scheduler
     internal async Task OnException(int executionId, Exception exception)
     {
         var canBeRetried = await _storage.CanBeRetried(executionId);
+        await _errorLogger.AddError(exception, executionId);
+        
         if (canBeRetried)
         {
-            await _storage.RetryExecution(executionId);
-            await _onEnqueueCancellationToken.CancelAsync();
+            await _executionSemaphore.WaitAsync();
+            try
+            {
+                await _storage.RetryExecution(executionId);
+            }
+            finally
+            {
+                _executionSemaphore.Release();
+            }
+
+            await _cancellationTokenSemaphore.WaitAsync();
+            try
+            {
+                await _onEnqueueCancellationToken.CancelAsync();
+            }
+            finally
+            {
+                _cancellationTokenSemaphore.Release();
+            }
         }
         else
         {
-            var errorMessage = $"{exception.Message}\n{exception.StackTrace}";
-            await _storage.SetExecutionFailedState(executionId, errorMessage);   
+            await _storage.SetExecutionFailedState(executionId);
         }
     }
 

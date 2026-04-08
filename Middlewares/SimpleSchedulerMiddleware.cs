@@ -2,7 +2,7 @@ using SimpleScheduler.Services;
 
 namespace SimpleScheduler.Middlewares;
 
-public class SimpleSchedulerMiddleware : IMiddleware
+internal class SimpleSchedulerMiddleware : IMiddleware
 {
     private readonly ITokenService _tokenService;
     

@@ -6,7 +6,7 @@ namespace SimpleScheduler.Mapper;
 /// Interface for the job mapper.
 /// It's a in-memory cache for jobs.
 /// </summary>
-public interface IJobMapper
+internal interface IJobMapper
 {
     /// <summary>
     /// Returns mapped jobs to the specified keys.  

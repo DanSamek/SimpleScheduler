@@ -3,7 +3,7 @@ using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Entities;
 
-public class Execution : DoId, IDto<ExecutionDto>
+internal  class Execution : DoId, IDto<ExecutionDto>
 {
     /// <summary>
     /// Job that is executed.
@@ -20,10 +20,6 @@ public class Execution : DoId, IDto<ExecutionDto>
     /// </summary>
     public ExecutionState State { get; set; } = ExecutionState.Created;
     
-    /// <summary>
-    /// Error message of the execution.
-    /// </summary>
-    public string? Error { get; set; }
 
     /// <summary>
     /// When the execution was created. 
@@ -53,7 +49,12 @@ public class Execution : DoId, IDto<ExecutionDto>
     /// <summary>
     /// Rerun time of the execution - when its retried, can be delayed.
     /// </summary>
-    public DateTime RetryTime { get; set; }
+    public DateTime RetryTime { get; set; } = DateTime.UtcNow;
+    
+    /// <summary>
+    /// All errors that happened with this execution.
+    /// </summary>
+    public List<Error> Errors { get; set; } = [];
     
     /// <inheritdoc /> 
     public ExecutionDto? ToDto(int recursionDepth)
@@ -65,7 +66,7 @@ public class Execution : DoId, IDto<ExecutionDto>
         
         return new ExecutionDto(Id, Job?.JobInfo.Key, State.ToString(),
             Started?.ToString(CultureInfo.InvariantCulture) ?? NOT_STARTED,
-            Ended?.ToString(CultureInfo.InvariantCulture) ?? NOT_ENDED, Error, RetryCount,
+            Ended?.ToString(CultureInfo.InvariantCulture) ?? NOT_ENDED, "TODO", RetryCount,
             Job?.ToDto(recursionDepth - 1));
     }
 }

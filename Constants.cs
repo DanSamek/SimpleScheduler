@@ -1,6 +1,6 @@
 namespace SimpleScheduler;
 
-public static class Constants
+internal static class Constants
 {
     /// <summary>
     /// Size of the page size for views.

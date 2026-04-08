@@ -1,6 +1,6 @@
 namespace SimpleScheduler.Entities;
 
-public interface IDto<out T>
+internal interface IDto<out T>
 {
     /// <summary>
     /// Converts entity to the dto.

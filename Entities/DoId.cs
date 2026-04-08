@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SimpleScheduler.Entities;
 
-public class DoId
+internal class DoId
 {
     [Key]
     public int Id { get; set; }

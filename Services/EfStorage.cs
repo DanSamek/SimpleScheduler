@@ -6,7 +6,7 @@ using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Services;
 
-public class EfStorage : IStorage
+internal class EfStorage : IStorage
 {
     private readonly DbContextProvider _dbContextProvider;
     private readonly SchedulerHubNotifier _hubNotifier; 
@@ -127,7 +127,7 @@ public class EfStorage : IStorage
     }
     
     /// <inheritdoc />
-    public async Task SetExecutionFailedState(int executionId, string errorMessage)
+    public async Task SetExecutionFailedState(int executionId)
     {
         await _dbContextProvider.WithContext(async context =>
         {
@@ -139,7 +139,6 @@ public class EfStorage : IStorage
             if (execution is null) return;
 
             execution.State = ExecutionState.Failed;
-            execution.Error = errorMessage;
             execution.Ended = DateTime.UtcNow;
 
             context.Update(execution);
@@ -361,9 +360,9 @@ public class EfStorage : IStorage
     }
 }
 
-public static class EfExtensions
+internal static class EfExtensions
 {
-    public static IIncludableQueryable<Job, JobSettings> Include(this IQueryable<Job> queryable)
+    internal static IIncludableQueryable<Job, JobSettings> Include(this IQueryable<Job> queryable)
     {
         return queryable
             .Include(j => j.JobInfo)

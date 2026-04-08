@@ -4,7 +4,7 @@ using SimpleScheduler.Scheduler;
 
 namespace SimpleScheduler.Mapper;
 
-public class JobMapper : IJobMapper
+internal class JobMapper : IJobMapper
 {
     private readonly IServiceScopeFactory _scopeFactory;
     
@@ -23,6 +23,7 @@ public class JobMapper : IJobMapper
         var result = new List<ExecutionWithJob>();
         foreach (var execution in executions)
         {
+            // This should not happen - our responsibility
             if (execution.Job == null) throw new NullReferenceException("Job is null - not included.");
 
             var info = execution.Job.JobInfo;
@@ -34,6 +35,7 @@ public class JobMapper : IJobMapper
             var service = scope.ServiceProvider.GetService(type!);
             var method = service?.GetType().GetMethod(methodName);
 
+            // This should not happen
             if (method == null) throw new NullReferenceException($"Could not find method {methodName} in type {typeName}.");
 
             var data = execution.Job.JobSettings.DeserializeData();

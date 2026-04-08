@@ -20,6 +20,7 @@ public static class SimpleScheduler
         services.AddSingleton<SimpleSchedulerOptions>(_ => options);
         services.AddSingleton<SchedulerHubNotifier>();
         services.AddSingleton<IStorage, EfStorage>();
+        services.AddSingleton<ErrorLogger>();
         services.AddSingleton<ThreadPool.ThreadPool>(_ => new ThreadPool.ThreadPool(options.NumberOfThreads));
         services.AddSingleton<IJobMapper, JobMapper>();
         services.AddSingleton<Scheduler.Scheduler>();

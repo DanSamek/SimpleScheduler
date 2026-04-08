@@ -5,7 +5,7 @@ namespace SimpleScheduler.Services;
 /// <summary>
 /// Interface for different kinds of storage implementations (in-memory, db)
 /// </summary>
-public interface IStorage
+internal interface IStorage
 {
     /// <summary>
     /// Add job to the storage.
@@ -25,7 +25,7 @@ public interface IStorage
     /// <summary>
     /// Updates an execution's state to a failed. 
     /// </summary>
-    Task SetExecutionFailedState(int executionId, string errorMessage);
+    Task SetExecutionFailedState(int executionId);
     
     /// <summary>
     /// Returns all executions.

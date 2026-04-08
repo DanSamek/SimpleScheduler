@@ -3,7 +3,7 @@ using SimpleScheduler.Entities;
 
 namespace SimpleScheduler.Services;
 
-public class TokenService : ITokenService
+internal class TokenService : ITokenService
 {
     private readonly DbContextProvider _dbContextProvider;
     

@@ -3,7 +3,7 @@ using SimpleScheduler.Entities;
 
 namespace SimpleScheduler.Hub;
 
-public class SchedulerHubNotifier
+internal class SchedulerHubNotifier
 {
     private readonly IHubContext<SchedulerHub> _hubContext;
     

@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SimpleScheduler.ContextProvider;
 
-public class DbContextProvider
+internal class DbContextProvider
 {
     private readonly Type _dbContextType;
     private readonly IServiceScopeFactory  _scopeFactory;
@@ -35,6 +35,7 @@ public class DbContextProvider
         using var scope = _scopeFactory.CreateScope();
         await using var context = scope.GetSchedulerContext(_dbContextType);
         await action(context);
+        // TODO maybe add SaveChanges.
     }
 }
 

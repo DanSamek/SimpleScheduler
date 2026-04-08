@@ -5,7 +5,7 @@ namespace SimpleScheduler.ThreadPool;
 /// <summary>
 /// Thread pool for executing tasks. 
 /// </summary>
-public class ThreadPool
+internal class ThreadPool
 {
     private readonly Worker[] _workers;
     private readonly Channel<WorkerData>[] _jobChannels;

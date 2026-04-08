@@ -33,19 +33,19 @@ await Jobs.AddJob(
     new JobSettingsBuilder()
         .SetData(new Test.EntityB(new Test.EntityA(1,2,3), 4))
         .SetRecurrence(TimeSpan.FromHours(24))
-        .SetDelay(TimeSpan.FromMinutes(1))
-        .SetRetrySchedule(TimeSpan.FromMinutes(5), 2)
-        .Build()
-);
+       // .SetDelay(TimeSpan.FromMinutes(1))
+        .SetRetrySchedule(TimeSpan.FromSeconds(15), 4)
+        .Build() 
+    );
 
 app.Run();
 
 class Test
 {
-    public async Task Job(SimpleSchedulerJobContext c)
+    public Task Job(SimpleSchedulerJobContext c)
     {
         var data = c.GetDataNotNull<EntityB>();
-        await Task.Delay(data.b * 1000);
+        Console.WriteLine($"RC: {c.RetryCount} {DateTime.Now}");
         throw new Exception("Test");
     }
     

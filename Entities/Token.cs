@@ -3,7 +3,7 @@ namespace SimpleScheduler.Entities;
 /// <summary>
 /// Token for auth purposes
 /// </summary>
-public class Token : DoId
+internal class Token : DoId
 {
     /// <summary>
     /// Value of the token.

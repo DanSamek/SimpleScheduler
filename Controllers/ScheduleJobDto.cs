@@ -1,3 +1,3 @@
 namespace SimpleScheduler.Controllers;
 
-public record ScheduleJobDto(int Id, string? Arguments);
+internal record ScheduleJobDto(int Id, string? Arguments);

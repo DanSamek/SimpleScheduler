@@ -4,7 +4,7 @@ using SimpleScheduler.Services;
 using SimpleScheduler.Views.SimpleScheduler;
 namespace SimpleScheduler.Controllers;
 
-public class SimpleSchedulerController : Controller
+internal class SimpleSchedulerController : Controller
 {
     private readonly IStorage _storage;
     private readonly SimpleSchedulerOptions _options;
