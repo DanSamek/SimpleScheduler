@@ -3,7 +3,7 @@ namespace SimpleScheduler.Scheduler;
 /// <summary>
 /// Context for the job.
 /// </summary>
-public class SimpleSchedulerJobContext
+public readonly record struct SimpleSchedulerJobContext
 {
     private readonly object? _data;
     
@@ -23,6 +23,7 @@ public class SimpleSchedulerJobContext
     
     /// <summary>
     /// Returns data that were added for the job without null checks.
+    /// This will trigger exceptions, if data are null!
     /// </summary>
     public T GetDataNotNull<T>() => ((T?)_data)!;
     
