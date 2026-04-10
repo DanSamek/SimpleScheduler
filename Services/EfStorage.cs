@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Query;
 using SimpleScheduler.ContextProvider;
 using SimpleScheduler.Entities;
 using SimpleScheduler.Entities.Db;
-using SimpleScheduler.Entities.Dto;
 using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Services;
@@ -107,6 +106,18 @@ internal class EfStorage : IStorage
             return Task.FromResult(result);
         });
     }
+    
+    /// <inheritdoc />
+    public async Task<Error?> ErrorById(int id)
+    {
+        return await _dbContextProvider.WithContext(context =>
+        {
+            var error = context.Set<Error>()
+                .FirstOrDefault(e => e.Id == id);
+
+            return Task.FromResult(error);
+        });
+    }
 
     /// <inheritdoc />
     public async Task UpdateExecutionState(int executionId, ExecutionState newState)
@@ -172,7 +183,11 @@ internal class EfStorage : IStorage
         return await _dbContextProvider.WithContext(context =>
         {
             var executions = context.Set<Execution>()
+                // TODO if its possible somehow better?
                 .Include(e => e.Job)
+                .ThenInclude(j => j!.JobInfo)
+                .Include(e => e.Job)
+                .ThenInclude(j => j!.JobInfo)
                 .OrderByDescending(e => e.Id)
                 .Skip(pageIndex * Constants.PAGE_SIZE)
                 .Take(Constants.PAGE_SIZE)
@@ -242,7 +257,6 @@ internal class EfStorage : IStorage
             return execution;
         });
     }
-
     
     /// <inheritdoc />
     public async Task<Execution?> ExecutionById(int id)

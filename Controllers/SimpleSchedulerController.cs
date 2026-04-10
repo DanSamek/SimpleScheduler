@@ -140,4 +140,20 @@ public class SimpleSchedulerController : Controller
         
         return View(model);
     }
+    
+    [HttpGet("/simple-scheduler/errors/{id:int}")]
+    public async Task<IActionResult> Error(int id)
+    {
+        var error = await _storage.ErrorById(id);
+        if (error is null)
+        {
+            return NotFound();
+        }
+        var model = new ErrorModel
+        {
+            ErrorDto = error.ToDto(0),
+        };
+        
+        return View(model);
+    }
 }

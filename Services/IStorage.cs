@@ -102,4 +102,9 @@ public interface IStorage
     /// Returns all errors that occured.
     /// </summary>
     Task<IReadOnlyList<Error>> AllErrors();
+
+    /// <summary>
+    /// Returns error by id.
+    /// </summary>
+    Task<Error?> ErrorById(int id);
 }

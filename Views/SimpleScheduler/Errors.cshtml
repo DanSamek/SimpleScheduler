@@ -3,3 +3,26 @@
 @{
     Layout = "_Layout";
 }
+
+<table class="table is-striped jobs container">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Execution id</th>
+        <th>Occured</th>
+    </tr>
+    </thead>
+    
+    <tbody>
+    @foreach (var error in Model.ErrorsDto)
+    {
+        <tr id="job-@error.Id" class="clickable-row" data-href="/simple-scheduler/errors/@error.Id">
+            <td class="id">@error.Id</td>
+            <td class="execution-id">@error.ExecutionId</td>
+            <td class="execution-id">@error.Occurred</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@* TODO paging *@

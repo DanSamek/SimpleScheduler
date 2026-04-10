@@ -1,3 +1,4 @@
+using System.Globalization;
 using SimpleScheduler.Entities.Dto;
 
 namespace SimpleScheduler.Entities.Db;
@@ -27,7 +28,7 @@ public class Error : DoId, IDto<ErrorDto>
     /// <inheritdoc /> 
     public ErrorDto ToDto(int recursionDepth)
     {
-        var instance = new ErrorDto(ExecutionId, ErrorMessage,  Occurred);
+        var instance = new ErrorDto(Id, ExecutionId, ErrorMessage, Occurred.ToString(CultureInfo.InvariantCulture));
         return instance;
     }
 }
