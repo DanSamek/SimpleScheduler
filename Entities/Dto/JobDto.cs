@@ -1,4 +1,4 @@
-namespace SimpleScheduler.Hub;
+namespace SimpleScheduler.Entities.Dto;
 
 /// <summary>
 /// Dto for the job.

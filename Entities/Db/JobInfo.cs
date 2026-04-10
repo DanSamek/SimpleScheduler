@@ -1,7 +1,6 @@
 using SimpleScheduler.Jobs;
 
-namespace SimpleScheduler.Entities;
-
+namespace SimpleScheduler.Entities.Db;
 
 internal class JobInfo : DoId
 {

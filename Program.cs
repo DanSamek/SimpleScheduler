@@ -6,7 +6,6 @@ using SimpleScheduler.Scheduler;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<SimpleSchedulerContext>(dbOptions => dbOptions.UseInMemoryDatabase("SimpleScheduler"));
-
 builder.Services.AddSimpleScheduler(options =>
 {
     options.NumberOfThreads = 1;
@@ -18,7 +17,7 @@ builder.Services.AddSimpleScheduler(options =>
     };
 });
 
-// Force to the DI container.
+// We require the service in the container (to avoid reflection madness).
 builder.Services.AddTransient<Test>();
 
 var app = builder.Build();
@@ -33,8 +32,8 @@ await Jobs.AddJob(
     new JobSettingsBuilder()
         .SetData(new Test.EntityB(new Test.EntityA(1,2,3), 4))
         .SetRecurrence(TimeSpan.FromHours(24))
-       // .SetDelay(TimeSpan.FromMinutes(1))
-        .SetRetrySchedule(TimeSpan.FromSeconds(15), 4)
+        .SetDelay(TimeSpan.FromMinutes(1))
+        .SetRetrySchedule(TimeSpan.FromSeconds(15), 1)
         .Build() 
     );
 

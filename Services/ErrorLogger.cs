@@ -1,5 +1,6 @@
 using SimpleScheduler.ContextProvider;
 using SimpleScheduler.Entities;
+using SimpleScheduler.Entities.Db;
 
 namespace SimpleScheduler.Services;
 
@@ -33,7 +34,8 @@ internal class ErrorLogger
                 .Add(new Error
                 {
                     ErrorMessage = errorMessage,
-                    ExecutionId = executionId
+                    ExecutionId = executionId,
+                    Occurred = DateTime.UtcNow
                 });
             context.SaveChanges();
             return Task.CompletedTask;

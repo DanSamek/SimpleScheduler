@@ -37,6 +37,9 @@ public static class SimpleScheduler
             .AddRazorPages()
             .AddApplicationPart(typeof(SimpleScheduler).Assembly);
         
+        services.AddControllers()
+            .AddApplicationPart(typeof(SimpleScheduler).Assembly);
+        
         services.AddSignalR();
     }
     

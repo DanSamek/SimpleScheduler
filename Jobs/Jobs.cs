@@ -1,4 +1,4 @@
-using SimpleScheduler.Entities;
+using SimpleScheduler.Entities.Db;
 using SimpleScheduler.Services;
 
 namespace SimpleScheduler.Jobs;

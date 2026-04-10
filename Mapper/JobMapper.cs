@@ -1,5 +1,4 @@
-using SimpleScheduler.Entities;
-using SimpleScheduler.Jobs;
+using SimpleScheduler.Entities.Db;
 using SimpleScheduler.Scheduler;
 
 namespace SimpleScheduler.Mapper;

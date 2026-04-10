@@ -1,7 +1,7 @@
 using System.Globalization;
-using SimpleScheduler.Hub;
+using SimpleScheduler.Entities.Dto;
 
-namespace SimpleScheduler.Entities;
+namespace SimpleScheduler.Entities.Db;
 
 internal class Job : DoId, IDto<JobDto>
 {

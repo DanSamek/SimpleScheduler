@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 using SimpleScheduler.ContextProvider;
 using SimpleScheduler.Entities;
+using SimpleScheduler.Entities.Db;
+using SimpleScheduler.Entities.Dto;
 using SimpleScheduler.Hub;
 
 namespace SimpleScheduler.Services;
@@ -93,7 +95,19 @@ internal class EfStorage : IStorage
             return Task.FromResult(executions);
         });
     }
-    
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<Error>> AllErrors()
+    {
+        return await _dbContextProvider.WithContext(context =>
+        {
+            var result = context.Set<Error>()
+                .ToArray();
+
+            return Task.FromResult(result);
+        });
+    }
+
     /// <inheritdoc />
     public async Task UpdateExecutionState(int executionId, ExecutionState newState)
     {
@@ -134,8 +148,11 @@ internal class EfStorage : IStorage
             var executions = context.Set<Execution>();
             var execution = executions
                 .Include(e => e.Job)
+                .ThenInclude(j => j!.JobInfo)
+                .Include(e => e.Job)
+                .ThenInclude(j => j!.JobSettings)
                 .FirstOrDefault(e => e.Id == executionId);
-
+            
             if (execution is null) return;
 
             execution.State = ExecutionState.Failed;

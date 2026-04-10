@@ -1,5 +1,5 @@
 using SimpleScheduler.ContextProvider;
-using SimpleScheduler.Entities;
+using SimpleScheduler.Entities.Db;
 
 namespace SimpleScheduler.Services;
 

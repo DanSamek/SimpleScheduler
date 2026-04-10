@@ -1,8 +1,7 @@
 using System.Text.Json;
 using SimpleScheduler.Jobs;
 
-namespace SimpleScheduler.Entities;
-
+namespace SimpleScheduler.Entities.Db;
 
 internal class JobSettings : DoId
 {

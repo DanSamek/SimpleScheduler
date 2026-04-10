@@ -1,5 +1,5 @@
 using System.Reflection;
-using SimpleScheduler.Entities;
+using SimpleScheduler.Entities.Db;
 
 namespace SimpleScheduler.Mapper;
 

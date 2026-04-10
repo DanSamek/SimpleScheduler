@@ -1,4 +1,6 @@
 using SimpleScheduler.Entities;
+using SimpleScheduler.Entities.Db;
+using SimpleScheduler.Entities.Dto;
 
 namespace SimpleScheduler.Services;
 
@@ -96,4 +98,9 @@ internal interface IStorage
     /// Returns all executions to retry.
     /// </summary>
     Task<List<Execution>> ExecutionsToRetry();
+
+    /// <summary>
+    /// Returns all errors that occured.
+    /// </summary>
+    Task<IReadOnlyList<Error>> AllErrors();
 }

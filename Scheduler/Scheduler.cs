@@ -75,11 +75,14 @@ internal  class Scheduler
             }
             catch (Exception e)
             {
+                #if DEBUG
                 if (e is TaskCanceledException)
                 {
                     Console.WriteLine("Waiting was canceled.");
                 }
-                else if (e is not ObjectDisposedException)
+                else 
+                #endif 
+                if (e is not ObjectDisposedException)
                 {
                     Console.WriteLine(e);
                 }

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SimpleScheduler.Entities;
+namespace SimpleScheduler.Entities.Db;
 
 internal class DoId
 {

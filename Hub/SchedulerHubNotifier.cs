@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
-using SimpleScheduler.Entities;
+using SimpleScheduler.Entities.Db;
 
 namespace SimpleScheduler.Hub;
 

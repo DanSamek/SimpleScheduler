@@ -21,7 +21,7 @@ internal class SimpleSchedulerController : Controller
         _user = options.User!;
         _tokenService = tokenService;
     }
-
+    
     [HttpGet("/simple-scheduler/login")]
     public IActionResult Login()
     {
@@ -125,5 +125,19 @@ internal class SimpleSchedulerController : Controller
             JobDto = job.ToDto(2)!
         };
         return View(model);
-    }   
+    }
+
+    [HttpGet("/simple-scheduler/errors")]
+    public async Task<IActionResult> Errors()
+    {
+        var errors = await _storage.AllErrors();
+        var model = new ErrorsModel
+        {
+            ErrorsDto = errors
+                .Select(e => e.ToDto(0))
+                .ToList()
+        };
+        
+        return View(model);
+    }
 }

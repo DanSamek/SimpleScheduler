@@ -1,4 +1,4 @@
-namespace SimpleScheduler.Entities;
+namespace SimpleScheduler.Entities.Db;
 
 /// <summary>
 /// Token for auth purposes

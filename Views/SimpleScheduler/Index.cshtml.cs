@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using SimpleScheduler.Hub;
+using SimpleScheduler.Entities.Dto;
 
 namespace SimpleScheduler.Views.SimpleScheduler;
 
