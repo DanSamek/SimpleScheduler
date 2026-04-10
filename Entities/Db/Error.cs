@@ -2,7 +2,7 @@ using SimpleScheduler.Entities.Dto;
 
 namespace SimpleScheduler.Entities.Db;
 
-internal class Error : DoId, IDto<ErrorDto>
+public class Error : DoId, IDto<ErrorDto>
 {
     /// <summary>
     /// Message of the error, that happened.

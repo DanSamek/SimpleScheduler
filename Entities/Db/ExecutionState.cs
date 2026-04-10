@@ -3,7 +3,7 @@ namespace SimpleScheduler.Entities;
 /// <summary>
 /// State of the execution of the job.
 /// </summary>
-internal enum ExecutionState
+public enum ExecutionState
 {
     Created = 0,
     WaitingForRetry = 1,

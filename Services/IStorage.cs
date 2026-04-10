@@ -1,13 +1,12 @@
 using SimpleScheduler.Entities;
 using SimpleScheduler.Entities.Db;
-using SimpleScheduler.Entities.Dto;
 
 namespace SimpleScheduler.Services;
 
 /// <summary>
 /// Interface for different kinds of storage implementations (in-memory, db)
 /// </summary>
-internal interface IStorage
+public interface IStorage
 {
     /// <summary>
     /// Add job to the storage.

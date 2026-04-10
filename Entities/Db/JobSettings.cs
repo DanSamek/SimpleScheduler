@@ -3,7 +3,7 @@ using SimpleScheduler.Jobs;
 
 namespace SimpleScheduler.Entities.Db;
 
-internal class JobSettings : DoId
+public class JobSettings : DoId
 {
     /// <summary>
     /// .Ctor

@@ -3,7 +3,7 @@ using SimpleScheduler.Entities.Dto;
 
 namespace SimpleScheduler.Entities.Db;
 
-internal  class Execution : DoId, IDto<ExecutionDto>
+public class Execution : DoId, IDto<ExecutionDto>
 {
     /// <summary>
     /// Job that is executed.
